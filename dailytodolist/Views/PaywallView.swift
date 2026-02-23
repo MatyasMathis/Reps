@@ -49,6 +49,12 @@ struct PaywallView: View {
             }
             .toolbarBackground(Color.brandBlack, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .task {
+                // Retry loading product when paywall appears if it previously failed
+                if case .failed = store.productLoadState {
+                    await store.loadProducts()
+                }
+            }
         }
         .presentationBackground(Color.brandBlack)
         .alert("Purchase Failed", isPresented: showErrorAlert) {

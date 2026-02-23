@@ -57,6 +57,11 @@ final class StoreKitService: ObservableObject {
         }
     }
 
+    // MARK: - Retry Logic
+
+    private static let maxRetries = 3
+    private static let retryDelay: UInt64 = 2_000_000_000 // 2 seconds
+
     deinit {
         transactionListener?.cancel()
     }
@@ -65,26 +70,51 @@ final class StoreKitService: ObservableObject {
 
     func loadProducts() async {
         productLoadState = .loading
-        do {
-            let products = try await Product.products(for: [Self.proProductID])
-            if let product = products.first {
-                proProduct = product
-                productLoadState = .loaded
-            } else {
-                productLoadState = .failed(
-                    "Product not found. Please ensure the in-app purchase is configured in App Store Connect."
-                )
+        print("[StoreKit] Loading product: \(Self.proProductID)")
+
+        for attempt in 1...Self.maxRetries {
+            do {
+                let products = try await Product.products(for: [Self.proProductID])
+                print("[StoreKit] Fetched \(products.count) product(s) on attempt \(attempt)")
+
+                if let product = products.first {
+                    proProduct = product
+                    productLoadState = .loaded
+                    print("[StoreKit] Product loaded: \(product.displayName) — \(product.displayPrice)")
+                    return
+                }
+            } catch {
+                print("[StoreKit] Attempt \(attempt) failed: \(error.localizedDescription)")
+                if attempt == Self.maxRetries {
+                    productLoadState = .failed(
+                        "Unable to load product. Check your connection and try again."
+                    )
+                    return
+                }
             }
-        } catch {
-            productLoadState = .failed(error.localizedDescription)
+
+            // Wait before retrying
+            try? await Task.sleep(nanoseconds: Self.retryDelay)
         }
+
+        // All retries returned empty products
+        print("[StoreKit] Product not found after \(Self.maxRetries) attempts. Ensure IAP is configured in App Store Connect with all required metadata.")
+        productLoadState = .failed(
+            "Product not available. Please try again later."
+        )
     }
 
     // MARK: - Purchase
 
     func purchase() async {
-        guard let product = proProduct else { return }
+        guard let product = proProduct else {
+            print("[StoreKit] Purchase called but proProduct is nil — product not loaded")
+            purchaseState = .failed("Product not loaded. Please try again.")
+            return
+        }
+
         purchaseState = .purchasing
+        print("[StoreKit] Starting purchase for \(product.id)")
 
         do {
             let result = try await product.purchase()
@@ -95,17 +125,22 @@ final class StoreKitService: ObservableObject {
                 await transaction.finish()
                 isProUnlocked = true
                 purchaseState = .purchased
+                print("[StoreKit] Purchase successful")
 
             case .userCancelled:
                 purchaseState = .idle
+                print("[StoreKit] Purchase cancelled by user")
 
             case .pending:
                 purchaseState = .idle
+                print("[StoreKit] Purchase pending (e.g. awaiting approval)")
 
             @unknown default:
                 purchaseState = .idle
+                print("[StoreKit] Purchase returned unknown result")
             }
         } catch {
+            print("[StoreKit] Purchase error: \(error.localizedDescription)")
             purchaseState = .failed(error.localizedDescription)
         }
     }
@@ -114,6 +149,7 @@ final class StoreKitService: ObservableObject {
 
     func restore() async {
         purchaseState = .purchasing
+        print("[StoreKit] Restoring purchases…")
 
         do {
             try await AppStore.sync()
@@ -121,10 +157,13 @@ final class StoreKitService: ObservableObject {
 
             if isProUnlocked {
                 purchaseState = .restored
+                print("[StoreKit] Restore successful — Pro unlocked")
             } else {
                 purchaseState = .failed("No previous purchase found.")
+                print("[StoreKit] Restore complete — no purchase found")
             }
         } catch {
+            print("[StoreKit] Restore error: \(error.localizedDescription)")
             purchaseState = .failed(error.localizedDescription)
         }
     }
