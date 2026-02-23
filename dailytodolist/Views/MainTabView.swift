@@ -28,9 +28,10 @@ struct MainTabView: View {
     init() {
         // Set hidden tab bar background to match the app theme
         // Prevents grey bleed-through when scrolling to the bottom
+        // Uses UIColor.systemBackground so it adapts to both light and dark modes
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
-        tabBarAppearance.backgroundColor = UIColor(Color.brandBlack)
+        tabBarAppearance.backgroundColor = UIColor.systemBackground
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }

@@ -19,6 +19,7 @@ struct SettingsView: View {
 
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
     @AppStorage("hapticFeedbackEnabled") private var hapticFeedbackEnabled: Bool = true
+    @AppStorage("colorSchemePreference") private var colorSchemePreference: String = "dark"
 
     // MARK: - Store
 
@@ -50,6 +51,7 @@ struct SettingsView: View {
                         appInfoSection
                         proStatusSection
                         generalSection
+                        appearanceSection
                         dataSection
                         aboutSection
                         #if DEBUG
@@ -189,6 +191,38 @@ struct SettingsView: View {
                     isOn: $hapticFeedbackEnabled
                 )
             }
+            .background(Color.darkGray1)
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+        }
+    }
+
+    // MARK: - Appearance Section
+
+    private var appearanceSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            sectionLabel("APPEARANCE")
+
+            HStack(spacing: Spacing.md) {
+                Image(systemName: "circle.lefthalf.filled")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(Color.recoveryGreen)
+                    .frame(width: 24)
+
+                Text("Theme")
+                    .font(.system(size: Typography.bodySize, weight: .medium))
+                    .foregroundStyle(Color.pureWhite)
+
+                Spacer()
+
+                Picker("", selection: $colorSchemePreference) {
+                    Text("Dark").tag("dark")
+                    Text("Light").tag("light")
+                    Text("System").tag("system")
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 180)
+            }
+            .padding(Spacing.lg)
             .background(Color.darkGray1)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
         }
