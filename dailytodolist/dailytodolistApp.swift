@@ -25,7 +25,16 @@ extension Notification.Name {
 /// Uses SharedModelContainer to share data with the widget extension.
 @main
 struct RepsApp: App {
+    @AppStorage("colorSchemePreference") private var colorSchemePreference: String = "dark"
     @State private var showSplash = true
+
+    private var resolvedColorScheme: ColorScheme? {
+        switch colorSchemePreference {
+        case "light": return .light
+        case "system": return nil
+        default: return .dark
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -41,6 +50,7 @@ struct RepsApp: App {
                         .zIndex(1)
                 }
             }
+            .preferredColorScheme(resolvedColorScheme)
             .onAppear {
                 // Dismiss splash after delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
