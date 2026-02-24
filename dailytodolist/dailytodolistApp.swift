@@ -23,9 +23,22 @@ extension Notification.Name {
 ///
 /// Configures the SwiftData persistence layer and sets up the root view.
 /// Uses SharedModelContainer to share data with the widget extension.
+/// When the user has REPS Pro, a CloudKit-backed container is created at launch
+/// (based on a cached UserDefaults flag) to enable iCloud sync.
 @main
 struct RepsApp: App {
+    let container: ModelContainer
     @State private var showSplash = true
+    @State private var showSyncActivatedAlert = false
+    @ObservedObject private var store = StoreKitService.shared
+
+    init() {
+        let isPro = UserDefaults.standard.bool(forKey: StoreKitService.proUnlockedCacheKey)
+        container = SharedModelContainer.makeContainer(cloudSyncEnabled: isPro)
+        // Record whether CloudKit was active at this launch so the Settings UI can
+        // show the correct sync status without waiting for async StoreKit validation.
+        UserDefaults.standard.set(isPro, forKey: "cloudKitActiveOnLaunch")
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -33,6 +46,19 @@ struct RepsApp: App {
                 MainTabView()
                     .onOpenURL { url in
                         handleDeepLink(url)
+                    }
+                    .onChange(of: store.isProUnlocked) { _, newValue in
+                        // When Pro is purchased mid-session, CloudKit isn't active yet
+                        // (the container was already created without it). Prompt restart.
+                        let wasActiveOnLaunch = UserDefaults.standard.bool(forKey: "cloudKitActiveOnLaunch")
+                        if newValue && !wasActiveOnLaunch {
+                            showSyncActivatedAlert = true
+                        }
+                    }
+                    .alert("iCloud Sync Enabled", isPresented: $showSyncActivatedAlert) {
+                        Button("Got it") {}
+                    } message: {
+                        Text("Restart the app to activate iCloud sync across your devices.")
                     }
 
                 if showSplash {
@@ -50,8 +76,7 @@ struct RepsApp: App {
                 }
             }
         }
-        // Use shared model container for widget data access
-        .modelContainer(SharedModelContainer.sharedModelContainer)
+        .modelContainer(container)
     }
 
     /// Handles deep links from the widget

@@ -49,6 +49,7 @@ struct SettingsView: View {
                     VStack(spacing: Spacing.xxl) {
                         appInfoSection
                         proStatusSection
+                        cloudSyncSection
                         generalSection
                         dataSection
                         aboutSection
@@ -162,6 +163,51 @@ struct SettingsView: View {
             PaywallView()
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
+        }
+    }
+
+    // MARK: - Cloud Sync Section
+
+    @ViewBuilder
+    private var cloudSyncSection: some View {
+        if store.isProUnlocked {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                sectionLabel("CLOUD SYNC")
+
+                let isActive = UserDefaults.standard.bool(forKey: "cloudKitActiveOnLaunch")
+
+                HStack(spacing: Spacing.md) {
+                    Image(systemName: "icloud.fill")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(Color.recoveryGreen)
+                        .frame(width: 24)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("iCloud Sync")
+                            .font(.system(size: Typography.bodySize, weight: .medium))
+                            .foregroundStyle(Color.pureWhite)
+
+                        Text("Tasks sync across all your Apple devices")
+                            .font(.system(size: Typography.captionSize, weight: .regular))
+                            .foregroundStyle(Color.mediumGray)
+                    }
+
+                    Spacer()
+
+                    HStack(spacing: Spacing.xs) {
+                        Circle()
+                            .fill(isActive ? Color.recoveryGreen : Color.mediumGray)
+                            .frame(width: 7, height: 7)
+
+                        Text(isActive ? "Active" : "Restart required")
+                            .font(.system(size: Typography.captionSize, weight: .medium))
+                            .foregroundStyle(isActive ? Color.recoveryGreen : Color.mediumGray)
+                    }
+                }
+                .padding(Spacing.lg)
+                .background(Color.darkGray1)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+            }
         }
     }
 

@@ -141,6 +141,14 @@ struct PaywallView: View {
             Divider().background(Color.darkGray2)
 
             featureRow(
+                icon: "icloud.fill",
+                title: "iCloud Sync",
+                subtitle: "Access your tasks on all your Apple devices"
+            )
+
+            Divider().background(Color.darkGray2)
+
+            featureRow(
                 icon: "heart.fill",
                 title: "Support Development",
                 subtitle: "Help keep REPS ad-free and privacy-focused"

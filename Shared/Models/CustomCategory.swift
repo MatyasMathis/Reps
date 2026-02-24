@@ -16,22 +16,22 @@ final class CustomCategory {
     // MARK: - Properties
 
     /// Unique identifier
-    var id: UUID
+    var id: UUID = UUID()
 
     /// Display name (also used as the key in TodoTask.category)
-    var name: String
+    var name: String = ""
 
     /// SF Symbol name (e.g. "star.fill")
-    var iconName: String
+    var iconName: String = ""
 
     /// Hex color string without # (e.g. "FF6B6B")
-    var colorHex: String
+    var colorHex: String = ""
 
     /// Date when the category was created
-    var createdAt: Date
+    var createdAt: Date = Date()
 
     /// Sort order for display in the category grid
-    var sortOrder: Int
+    var sortOrder: Int = 0
 
     // MARK: - Initialization
 
