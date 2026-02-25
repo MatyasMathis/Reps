@@ -36,6 +36,11 @@ final class StoreKitService: ObservableObject {
 
     static let proProductID = "com.mathis.reps.pro"
 
+    /// UserDefaults key used to cache Pro status for synchronous reads at app launch.
+    /// This allows `dailytodolistApp` to decide the CloudKit configuration before
+    /// StoreKit's async entitlement check completes.
+    static let proUnlockedCacheKey = "isProUnlocked"
+
     // MARK: - Private
 
     private var transactionListener: Task<Void, Never>?
@@ -80,6 +85,7 @@ final class StoreKitService: ObservableObject {
                 let transaction = try checkVerified(verification)
                 await transaction.finish()
                 isProUnlocked = true
+                UserDefaults.standard.set(true, forKey: Self.proUnlockedCacheKey)
                 purchaseState = .purchased
 
             case .userCancelled:
@@ -123,10 +129,12 @@ final class StoreKitService: ObservableObject {
                transaction.productID == Self.proProductID,
                transaction.revocationDate == nil {
                 isProUnlocked = true
+                UserDefaults.standard.set(true, forKey: Self.proUnlockedCacheKey)
                 return
             }
         }
         isProUnlocked = false
+        UserDefaults.standard.set(false, forKey: Self.proUnlockedCacheKey)
     }
 
     // MARK: - Transaction Listener

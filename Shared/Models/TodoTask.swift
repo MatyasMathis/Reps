@@ -57,25 +57,25 @@ final class TodoTask {
     // MARK: - Properties
 
     /// Unique identifier for the task
-    var id: UUID
+    var id: UUID = UUID()
 
     /// The user-visible title of the task
-    var title: String
+    var title: String = ""
 
     /// Optional category for organizing tasks
     var category: String?
 
     /// Flag indicating if this task repeats daily (kept for backward compatibility)
-    var isRecurring: Bool
+    var isRecurring: Bool = false
 
     /// Date when the task was created
-    var createdAt: Date
+    var createdAt: Date = Date()
 
     /// Sort order for manual task reordering
-    var sortOrder: Int
+    var sortOrder: Int = 0
 
     /// Flag indicating if the task is active (not deleted)
-    var isActive: Bool
+    var isActive: Bool = true
 
     /// Optional start date for the task (nil = starts immediately)
     /// Used for one-time and daily tasks to schedule them for a future date

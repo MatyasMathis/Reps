@@ -18,10 +18,10 @@ final class TaskCompletion {
     // MARK: - Properties
 
     /// Unique identifier for this completion record
-    var id: UUID
+    var id: UUID = UUID()
 
     /// The exact date and time when the task was completed
-    var completedAt: Date
+    var completedAt: Date = Date()
 
     /// Reference to the task that was completed
     var task: TodoTask?

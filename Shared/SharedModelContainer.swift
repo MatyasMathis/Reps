@@ -17,28 +17,44 @@ enum SharedModelContainer {
     /// The App Group identifier shared between app and widget
     static let appGroupIdentifier = "group.com.mathis.reps"
 
-    /// Shared model container using App Group storage
-    static var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            TodoTask.self,
-            TaskCompletion.self,
-            CustomCategory.self
-        ])
+    private static let schema = Schema([
+        TodoTask.self,
+        TaskCompletion.self,
+        CustomCategory.self
+    ])
 
+    private static var storeURL: URL {
         guard let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: appGroupIdentifier
         ) else {
             fatalError("Failed to get App Group container URL for \(appGroupIdentifier)")
         }
+        return containerURL.appendingPathComponent("reps.sqlite")
+    }
 
-        let storeURL = containerURL.appendingPathComponent("reps.sqlite")
+    /// Creates a ModelContainer for the main app.
+    /// - Parameter cloudSyncEnabled: Pass `true` for Pro users to enable iCloud sync via CloudKit.
+    static func makeContainer(cloudSyncEnabled: Bool) -> ModelContainer {
+        let configuration = ModelConfiguration(
+            schema: schema,
+            url: storeURL,
+            cloudKitDatabase: cloudSyncEnabled ? .automatic : .none
+        )
+        do {
+            return try ModelContainer(for: schema, configurations: [configuration])
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }
 
+    /// Local-only container used by the widget extension and App Intents.
+    /// Widget extensions cannot use CloudKit; they read the shared SQLite file directly.
+    static var sharedModelContainer: ModelContainer = {
         let configuration = ModelConfiguration(
             schema: schema,
             url: storeURL,
             cloudKitDatabase: .none
         )
-
         do {
             return try ModelContainer(for: schema, configurations: [configuration])
         } catch {
