@@ -46,6 +46,10 @@ struct TaskListView: View {
     @ObservedObject private var storeService = StoreKitService.shared
     @State private var showSharePaywall = false
 
+    // Pro glimpse nudge
+    @State private var showProGlimpse = false
+    @State private var proGlimpseVariant: ProGlimpseVariant = .allTasksDone
+
     // MARK: - Preferences
 
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
@@ -159,6 +163,27 @@ struct TaskListView: View {
 
                 // Celebration overlay for task completion
                 CelebrationOverlay(message: celebrationMessage, isShowing: $showCelebration)
+
+                // Pro glimpse nudge — slides up after key moments
+                if showProGlimpse {
+                    VStack {
+                        Spacer()
+                        ProGlimpseCard(
+                            variant: proGlimpseVariant,
+                            onUnlock: {
+                                withAnimation { showProGlimpse = false }
+                                showSharePaywall = true
+                            },
+                            onDismiss: {
+                                withAnimation { showProGlimpse = false }
+                            }
+                        )
+                        .padding(.horizontal, Spacing.lg)
+                        .padding(.bottom, 140)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                    .zIndex(2)
+                }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -343,6 +368,12 @@ struct TaskListView: View {
 
             // Check if all tasks in this category are now completed
             checkCategoryCompletion(for: task)
+
+            // Pro glimpse nudges — check after state updates
+            DispatchQueue.main.async {
+                checkAllTasksDoneNudge()
+                checkStreakMilestoneNudge()
+            }
         }
 
         // Update immediately - completed tasks stay in list but move to end
@@ -520,6 +551,47 @@ struct TaskListView: View {
         }
 
         return streak
+    }
+
+    // MARK: - Pro Glimpse Triggers
+
+    /// Shows the pro glimpse card after a short delay (so celebration plays first).
+    private func presentProGlimpse(_ variant: ProGlimpseVariant) {
+        guard ProNudgeService.shared.canShow else { return }
+        ProNudgeService.shared.markShown()
+        proGlimpseVariant = variant
+        // Delay so the celebration overlay finishes first
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                showProGlimpse = true
+            }
+            // Auto-dismiss after 8 seconds if the user doesn't interact
+            DispatchQueue.main.asyncAfter(deadline: .now() + 8.0) {
+                withAnimation { showProGlimpse = false }
+            }
+        }
+    }
+
+    /// Fires when all of today's tasks are completed — highest-value nudge moment.
+    private func checkAllTasksDoneNudge() {
+        guard !storeService.isProUnlocked else { return }
+        guard !ProNudgeService.shared.hasShownAllTasksDoneNudgeToday else { return }
+        guard totalTodayCount > 0 && completedTodayCount == totalTodayCount else { return }
+
+        ProNudgeService.shared.hasShownAllTasksDoneNudgeToday = true
+        presentProGlimpse(.allTasksDone)
+    }
+
+    /// Fires when the user hits a streak milestone (7, 14, 30 days) for the first time.
+    private func checkStreakMilestoneNudge() {
+        guard !storeService.isProUnlocked else { return }
+        let milestones = [7, 14, 30]
+        let streak = calculateStreak()
+        guard milestones.contains(streak) else { return }
+        guard !ProNudgeService.shared.hasShownStreakNudge(for: streak) else { return }
+
+        ProNudgeService.shared.markStreakNudgeShown(for: streak)
+        presentProGlimpse(.streakMilestone(streak))
     }
 
     private func refreshTasks() async {

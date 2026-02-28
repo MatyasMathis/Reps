@@ -40,25 +40,26 @@ class OnboardingService {
 
         let taskService = TaskService(modelContext: modelContext)
 
-        // Task 1: A simple one-time task — teaches tapping to complete
+        // Task 1: A real daily habit — teaches daily recurrence by showing up tomorrow
         taskService.createTask(
-            title: "Tap here to complete your first task",
-            category: "Personal",
-            recurrenceType: .none
-        )
-
-        // Task 2: A daily recurring task — shows recurrence concept
-        taskService.createTask(
-            title: "This one comes back every day",
+            title: "Drink 8 glasses of water",
             category: "Health",
             recurrenceType: .daily
         )
 
-        // Task 3: Teaches editing — a task they'll want to customize
+        // Task 2: One-time task with an invitation to personalise —
+        // the user wants to edit this, which teaches the long-press mechanic through motivation
         taskService.createTask(
-            title: "Long press me to edit or delete",
-            category: "Work",
+            title: "Your biggest priority today — long press to make it yours",
+            category: "Personal",
             recurrenceType: .none
+        )
+
+        // Task 3: A second daily habit — reinforces the daily loop concept
+        taskService.createTask(
+            title: "5 minute walk outside",
+            category: "Health",
+            recurrenceType: .daily
         )
 
         hasCompletedOnboarding = true
