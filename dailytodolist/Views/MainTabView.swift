@@ -23,6 +23,11 @@ struct MainTabView: View {
     @State private var selectedTab: Tab = .today
     @Namespace private var animation
 
+    // Pro glimpse — history tab first-visit nudge
+    @ObservedObject private var storeService = StoreKitService.shared
+    @State private var showHistoryProGlimpse = false
+    @State private var showHistoryPaywall = false
+
     // MARK: - Init
 
     init() {
@@ -115,6 +120,46 @@ struct MainTabView: View {
             withAnimation {
                 selectedTab = .today
             }
+        }
+        .onChange(of: selectedTab) { _, newTab in
+            guard newTab == .history else { return }
+            guard !storeService.isProUnlocked else { return }
+            guard !ProNudgeService.shared.hasSeenHistoryNudge else { return }
+            guard ProNudgeService.shared.canShow else { return }
+
+            ProNudgeService.shared.hasSeenHistoryNudge = true
+            ProNudgeService.shared.markShown()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    showHistoryProGlimpse = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 8.0) {
+                    withAnimation { showHistoryProGlimpse = false }
+                }
+            }
+        }
+        .overlay(alignment: .bottom) {
+            if showHistoryProGlimpse && selectedTab == .history {
+                ProGlimpseCard(
+                    variant: .historyTab,
+                    onUnlock: {
+                        withAnimation { showHistoryProGlimpse = false }
+                        showHistoryPaywall = true
+                    },
+                    onDismiss: {
+                        withAnimation { showHistoryProGlimpse = false }
+                    }
+                )
+                .padding(.horizontal, Spacing.lg)
+                .padding(.bottom, 90)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(10)
+            }
+        }
+        .sheet(isPresented: $showHistoryPaywall) {
+            PaywallView()
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
     }
 
