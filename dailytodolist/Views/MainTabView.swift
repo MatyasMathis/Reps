@@ -81,14 +81,28 @@ struct MainTabView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             // Tab Content
-            TabView(selection: $selectedTab) {
+            //
+            // Use a plain ZStack with opacity instead of TabView so that
+            // switching tabs never triggers a UIKit UITabBarController view-
+            // controller swap. That swap is what causes the white background
+            // flash: UIKit briefly resets the UINavigationBar to its default
+            // appearance before SwiftUI's .toolbarBackground modifier can
+            // re-apply the dark colour. By keeping both views permanently
+            // mounted and only toggling opacity, the NavigationStack (and its
+            // underlying UINavigationController) is never torn down or
+            // re-presented — the nav bar colour stays consistent at all times.
+            ZStack {
                 TaskListView()
-                    .toolbar(.hidden, for: .tabBar)
-                    .tag(Tab.today)
+                    .opacity(selectedTab == .today ? 1 : 0)
+                    // Disable inherited animation so the content snap is instant
+                    // (the pill indicator still animates via matchedGeometryEffect).
+                    .transaction { $0.animation = nil }
+                    .allowsHitTesting(selectedTab == .today)
 
                 HistoryView()
-                    .toolbar(.hidden, for: .tabBar)
-                    .tag(Tab.history)
+                    .opacity(selectedTab == .history ? 1 : 0)
+                    .transaction { $0.animation = nil }
+                    .allowsHitTesting(selectedTab == .history)
             }
             .background(Color.brandBlack.ignoresSafeArea())
 
