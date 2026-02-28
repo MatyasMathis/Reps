@@ -33,6 +33,19 @@ struct MainTabView: View {
         tabBarAppearance.backgroundColor = UIColor(Color.brandBlack)
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+
+        // Set navigation bar background globally to prevent white flash when
+        // switching tabs quickly. Without this, the system default white
+        // background briefly bleeds through before the per-view .toolbarBackground
+        // modifier is applied on the incoming tab's NavigationStack.
+        let navBarAppearance = UINavigationBarAppearance()
+        navBarAppearance.configureWithOpaqueBackground()
+        navBarAppearance.backgroundColor = UIColor(Color.brandBlack)
+        navBarAppearance.shadowColor = .clear
+        UINavigationBar.appearance().standardAppearance = navBarAppearance
+        UINavigationBar.appearance().compactAppearance = navBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
+        UINavigationBar.appearance().compactScrollEdgeAppearance = navBarAppearance
     }
 
     // MARK: - Tab Enum
