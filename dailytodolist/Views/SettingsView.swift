@@ -19,6 +19,9 @@ struct SettingsView: View {
 
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
     @AppStorage("hapticFeedbackEnabled") private var hapticFeedbackEnabled: Bool = true
+    @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = false
+    @AppStorage("notificationHour") private var notificationHour: Int = 8
+    @AppStorage("notificationMinute") private var notificationMinute: Int = 0
 
     // MARK: - Store
 
@@ -29,6 +32,7 @@ struct SettingsView: View {
     @State private var showPrivacyPolicy = false
     @State private var showTermsOfService = false
     @State private var showPaywall = false
+    @State private var showNotificationDeniedAlert = false
 
     // MARK: - Computed
 
@@ -50,6 +54,7 @@ struct SettingsView: View {
                         appInfoSection
                         proStatusSection
                         cloudSyncSection
+                        notificationsSection
                         generalSection
                         dataSection
                         aboutSection
@@ -208,6 +213,131 @@ struct SettingsView: View {
                 .background(Color.darkGray1)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
             }
+        }
+    }
+
+    // MARK: - Notifications Section
+
+    private var notificationsSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            sectionLabel("NOTIFICATIONS")
+
+            VStack(spacing: 0) {
+                // Daily reminder toggle
+                HStack(spacing: Spacing.md) {
+                    Image(systemName: "bell.fill")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(Color.recoveryGreen)
+                        .frame(width: 24)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Daily Reminder")
+                            .font(.system(size: Typography.bodySize, weight: .medium))
+                            .foregroundStyle(Color.pureWhite)
+
+                        Text("Get a nudge to complete your tasks")
+                            .font(.system(size: Typography.captionSize, weight: .regular))
+                            .foregroundStyle(Color.mediumGray)
+                    }
+
+                    Spacer()
+
+                    Toggle("", isOn: Binding(
+                        get: { notificationsEnabled },
+                        set: { enabled in
+                            if enabled {
+                                Task {
+                                    let granted = await NotificationService.shared.requestPermission()
+                                    if granted {
+                                        notificationsEnabled = true
+                                        NotificationService.shared.scheduleReminder(
+                                            hour: notificationHour,
+                                            minute: notificationMinute
+                                        )
+                                    } else {
+                                        notificationsEnabled = false
+                                        showNotificationDeniedAlert = true
+                                    }
+                                }
+                            } else {
+                                notificationsEnabled = false
+                                NotificationService.shared.cancelReminder()
+                            }
+                        }
+                    ))
+                    .labelsHidden()
+                    .tint(Color.recoveryGreen)
+                }
+                .padding(Spacing.lg)
+
+                // Time picker — only visible when notifications are enabled
+                if notificationsEnabled {
+                    Divider()
+                        .background(Color.darkGray2)
+
+                    HStack(spacing: Spacing.md) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(Color.recoveryGreen)
+                            .frame(width: 24)
+
+                        Text("Reminder Time")
+                            .font(.system(size: Typography.bodySize, weight: .medium))
+                            .foregroundStyle(Color.pureWhite)
+
+                        Spacer()
+
+                        DatePicker(
+                            "",
+                            selection: Binding(
+                                get: {
+                                    Calendar.current.date(
+                                        bySettingHour: notificationHour,
+                                        minute: notificationMinute,
+                                        second: 0,
+                                        of: Date()
+                                    ) ?? Date()
+                                },
+                                set: { newDate in
+                                    let components = Calendar.current.dateComponents([.hour, .minute], from: newDate)
+                                    notificationHour = components.hour ?? 8
+                                    notificationMinute = components.minute ?? 0
+                                    NotificationService.shared.scheduleReminder(
+                                        hour: notificationHour,
+                                        minute: notificationMinute
+                                    )
+                                }
+                            ),
+                            displayedComponents: .hourAndMinute
+                        )
+                        .labelsHidden()
+                        .colorScheme(.dark)
+                    }
+                    .padding(Spacing.lg)
+                }
+            }
+            .background(Color.darkGray1)
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+        }
+        .task {
+            // Sync toggle with actual system permission status.
+            // Handles the case where the user disables notifications in system Settings.
+            if notificationsEnabled {
+                let status = await NotificationService.shared.checkAuthorizationStatus()
+                if status == .denied {
+                    notificationsEnabled = false
+                }
+            }
+        }
+        .alert("Notifications Disabled", isPresented: $showNotificationDeniedAlert) {
+            Button("Open Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Please enable notifications for REPS in Settings → Notifications.")
         }
     }
 

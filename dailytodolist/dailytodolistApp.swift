@@ -13,6 +13,7 @@
 
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 /// Notification posted when the app should navigate to the Tasks tab
 extension Notification.Name {
@@ -73,6 +74,18 @@ struct RepsApp: App {
                     withAnimation(.easeOut(duration: 0.4)) {
                         showSplash = false
                     }
+                }
+            }
+            .task {
+                // Re-schedule the daily reminder on every launch.
+                // iOS can clear pending notifications after a reinstall, so this
+                // ensures the reminder is always active if the user enabled it.
+                let defaults = UserDefaults.standard
+                if defaults.bool(forKey: "notificationsEnabled") {
+                    let hour = defaults.object(forKey: "notificationHour") != nil
+                        ? defaults.integer(forKey: "notificationHour") : 8
+                    let minute = defaults.integer(forKey: "notificationMinute")
+                    NotificationService.shared.scheduleReminder(hour: hour, minute: minute)
                 }
             }
         }
