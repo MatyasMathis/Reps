@@ -45,8 +45,8 @@ class NotificationService {
         center.removePendingNotificationRequests(withIdentifiers: [notificationIdentifier])
 
         let content = UNMutableNotificationContent()
-        content.title = "Daily Check-In"
-        content.body = "Time to complete your daily tasks!"
+        content.title = "Put in your reps"
+        content.body = "Consistency beats intensity. Your tasks are ready when you are."
         content.sound = .default
 
         var dateComponents = DateComponents()
