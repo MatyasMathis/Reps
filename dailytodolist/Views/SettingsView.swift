@@ -410,7 +410,10 @@ struct SettingsView: View {
 
             VStack(spacing: 0) {
                 aboutRow(icon: "star", title: "Rate on App Store") {
-                    // Placeholder: open App Store review
+                    // App Store ID is available after the app is created in App Store Connect.
+                    if let url = URL(string: "https://apps.apple.com/app/id6758785466?action=write-review") {
+                        UIApplication.shared.open(url)
+                    }
                 }
                 Divider().background(Color.darkGray2)
                 aboutRow(icon: "hand.raised", title: "Privacy Policy") {
@@ -422,7 +425,9 @@ struct SettingsView: View {
                 }
                 Divider().background(Color.darkGray2)
                 aboutRow(icon: "envelope", title: "Contact / Feedback") {
-                    // Placeholder: open mail or feedback form
+                    if let url = URL(string: "mailto:repsdevs@gmail.com?subject=REPS%20Feedback") {
+                        UIApplication.shared.open(url)
+                    }
                 }
             }
             .background(Color.darkGray1)
