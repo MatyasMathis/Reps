@@ -411,8 +411,7 @@ struct SettingsView: View {
             VStack(spacing: 0) {
                 aboutRow(icon: "star", title: "Rate on App Store") {
                     // App Store ID is available after the app is created in App Store Connect.
-                    // Replace YOUR_APP_ID below with the numeric ID (e.g. 6743210987).
-                    if let url = URL(string: "https://apps.apple.com/app/idYOUR_APP_ID?action=write-review") {
+                    if let url = URL(string: "https://apps.apple.com/app/id6758785466?action=write-review") {
                         UIApplication.shared.open(url)
                     }
                 }
@@ -426,7 +425,7 @@ struct SettingsView: View {
                 }
                 Divider().background(Color.darkGray2)
                 aboutRow(icon: "envelope", title: "Contact / Feedback") {
-                    if let url = URL(string: "mailto:mathis@example.com?subject=REPS%20Feedback") {
+                    if let url = URL(string: "mailto:repsdevs@gmail.com?subject=REPS%20Feedback") {
                         UIApplication.shared.open(url)
                     }
                 }
