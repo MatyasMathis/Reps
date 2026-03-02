@@ -34,6 +34,7 @@ struct YearInPixelsView: View {
 
     @State private var selectedYear: Int
     @State private var selectedDayInfo: DayInfo?
+    @State private var showShare = false
 
     // MARK: - Constants
 
@@ -188,6 +189,20 @@ struct YearInPixelsView: View {
             .navigationTitle("Year in Pixels")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if store.isProUnlocked {
+                        Button {
+                            let generator = UIImpactFeedbackGenerator(style: .light)
+                            generator.impactOccurred()
+                            showShare = true
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(Color.recoveryGreen)
+                        }
+                    }
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                         .foregroundStyle(Color.recoveryGreen)
@@ -195,6 +210,16 @@ struct YearInPixelsView: View {
             }
             .toolbarBackground(Color.brandBlack, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .sheet(isPresented: $showShare) {
+                YearShareSheet(
+                    selectedYear: selectedYear,
+                    monthRows: monthRows,
+                    monthNames: monthNames,
+                    totalCompletions: totalCompletions,
+                    activeDays: activeDays,
+                    longestStreak: longestStreak
+                )
+            }
         }
     }
 

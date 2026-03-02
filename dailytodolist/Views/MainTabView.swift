@@ -2,47 +2,57 @@
 //  MainTabView.swift
 //  Reps
 //
-//  Purpose: Root view with compact pill toggle navigation
-//  Design: Centered capsule toggle with sliding indicator
+//  Purpose: Root view with one NavigationStack and compact pill toggle navigation
+//  Design: Single nav bar (no dual-stack flash), single sliding pill indicator
 //
 
 import SwiftUI
 import SwiftData
 
-/// Root view with compact pill toggle navigation
+/// Root view managing the single NavigationStack and two permanently-mounted tab views.
 ///
-/// Features:
-/// - Centered floating pill toggle
-/// - Sliding capsule indicator
-/// - Haptic feedback on tab switch
-/// - Modern compact design
+/// Architecture notes:
+/// - ONE NavigationStack at this level. TaskListView / HistoryView contain plain ZStack
+///   content with no NavigationStack. This eliminates the UIKit dual-nav-controller race
+///   that caused the navigation bar background to flash when switching tabs.
+/// - Both tab views stay permanently mounted (opacity toggle) so their SwiftData
+///   @Query contexts and scroll positions are never torn down.
+/// - Pill indicator is a SINGLE Capsule that slides between button positions via
+///   PreferenceKey measurement — no crossfade artifact from two overlapping capsules.
 struct MainTabView: View {
 
     // MARK: - State
 
     @State private var selectedTab: Tab = .today
-    @Namespace private var animation
 
     // Pro glimpse — history tab first-visit nudge
     @ObservedObject private var storeService = StoreKitService.shared
     @State private var showHistoryProGlimpse = false
     @State private var showHistoryPaywall = false
 
+    // Sheets owned at the nav-bar level
+    @State private var showSettings = false
+    @State private var showYearInPixels = false
+    @State private var showStats = false
+
+    // Single sliding pill indicator positioning
+    @State private var tabButtonFrames: [Tab: CGRect] = [:]
+
+    // MARK: - Queries
+
+    @Query(sort: \TaskCompletion.completedAt, order: .reverse)
+    private var allCompletions: [TaskCompletion]
+
     // MARK: - Init
 
     init() {
-        // Set hidden tab bar background to match the app theme
-        // Prevents grey bleed-through when scrolling to the bottom
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
         tabBarAppearance.backgroundColor = UIColor(Color.brandBlack)
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
 
-        // Set navigation bar background globally to prevent white flash when
-        // switching tabs quickly. Without this, the system default white
-        // background briefly bleeds through before the per-view .toolbarBackground
-        // modifier is applied on the incoming tab's NavigationStack.
+        // Global fallback — keeps bar black even before SwiftUI toolbar modifiers fire.
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
         navBarAppearance.backgroundColor = UIColor(Color.brandBlack)
@@ -81,102 +91,222 @@ struct MainTabView: View {
         }
     }
 
+    // MARK: - Computed Properties
+
+    /// Streak from allCompletions — displayed in the Today toolbar badge.
+    private var currentStreak: Int {
+        let calendar = Calendar.current
+        let completionDays = Set(allCompletions.map { calendar.startOfDay(for: $0.completedAt) })
+        guard !completionDays.isEmpty else { return 0 }
+
+        var streak = 0
+        var checkDate = calendar.startOfDay(for: Date())
+
+        if !completionDays.contains(checkDate) {
+            guard let yesterday = calendar.date(byAdding: .day, value: -1, to: checkDate) else { return 0 }
+            if !completionDays.contains(yesterday) { return 0 }
+            checkDate = yesterday
+        }
+
+        while completionDays.contains(checkDate) {
+            streak += 1
+            guard let prev = calendar.date(byAdding: .day, value: -1, to: checkDate) else { break }
+            checkDate = prev
+        }
+
+        return streak
+    }
+
+    private var formattedDate: String {
+        Date().formatted(.dateTime.month(.abbreviated).day())
+    }
+
     // MARK: - Body
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // Tab Content
-            //
-            // Use a plain ZStack with opacity instead of TabView so that
-            // switching tabs never triggers a UIKit UITabBarController view-
-            // controller swap. That swap is what causes the white background
-            // flash: UIKit briefly resets the UINavigationBar to its default
-            // appearance before SwiftUI's .toolbarBackground modifier can
-            // re-apply the dark colour. By keeping both views permanently
-            // mounted and only toggling opacity, the NavigationStack (and its
-            // underlying UINavigationController) is never torn down or
-            // re-presented — the nav bar colour stays consistent at all times.
-            ZStack {
-                TaskListView()
-                    .opacity(selectedTab == .today ? 1 : 0)
-                    // Disable inherited animation so the content snap is instant
-                    // (the pill indicator still animates via matchedGeometryEffect).
-                    .transaction { $0.animation = nil }
-                    .allowsHitTesting(selectedTab == .today)
+        NavigationStack {
+            ZStack(alignment: .bottom) {
+                // Tab content — both permanently mounted, only opacity toggles.
+                // No NavigationStack inside either view, so there is exactly
+                // one UINavigationController in the hierarchy → no bar flash.
+                ZStack {
+                    TaskListView()
+                        .opacity(selectedTab == .today ? 1 : 0)
+                        .transaction { $0.animation = nil }
+                        .allowsHitTesting(selectedTab == .today)
 
-                HistoryView()
-                    .opacity(selectedTab == .history ? 1 : 0)
-                    .transaction { $0.animation = nil }
-                    .allowsHitTesting(selectedTab == .history)
+                    HistoryView()
+                        .opacity(selectedTab == .history ? 1 : 0)
+                        .transaction { $0.animation = nil }
+                        .allowsHitTesting(selectedTab == .history)
+                }
+                .background(Color.brandBlack.ignoresSafeArea())
+
+                // Compact Pill Toggle
+                pillToggle
+                    .padding(.bottom, Spacing.lg)
             }
-            .background(Color.brandBlack.ignoresSafeArea())
+            .ignoresSafeArea(.keyboard)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                // Leading: tab title (instant swap, no animation)
+                ToolbarItem(placement: .topBarLeading) {
+                    Group {
+                        if selectedTab == .today {
+                            Text("Today")
+                        } else {
+                            Text("History")
+                        }
+                    }
+                    .font(.system(size: Typography.h3Size, weight: .bold))
+                    .foregroundStyle(Color.pureWhite)
+                    .fixedSize()
+                    .transaction { $0.animation = nil }
+                }
 
-            // Compact Pill Toggle
-            pillToggle
-                .padding(.bottom, Spacing.lg)
-        }
-        .ignoresSafeArea(.keyboard)
-        .onReceive(NotificationCenter.default.publisher(for: .navigateToTasks)) { _ in
-            withAnimation {
+                // Trailing: tab-specific items (instant swap)
+                ToolbarItem(placement: .topBarTrailing) {
+                    Group {
+                        if selectedTab == .today {
+                            HStack(spacing: Spacing.md) {
+                                Button { showSettings = true } label: {
+                                    Image(systemName: "gearshape")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundStyle(Color.mediumGray)
+                                }
+
+                                Text(formattedDate)
+                                    .font(.system(size: Typography.bodySize, weight: .medium))
+                                    .foregroundStyle(Color.mediumGray)
+
+                                if currentStreak > 0 {
+                                    Button { showYearInPixels = true } label: {
+                                        StreakBadge(count: currentStreak)
+                                    }
+                                }
+                            }
+                        } else {
+                            Button { showStats = true } label: {
+                                HStack(spacing: Spacing.xs) {
+                                    Image(systemName: "chart.bar.fill")
+                                    Text("Stats")
+                                }
+                                .font(.system(size: Typography.bodySize, weight: .medium))
+                                .foregroundStyle(Color.recoveryGreen)
+                            }
+                        }
+                    }
+                    .transaction { $0.animation = nil }
+                }
+            }
+            .toolbarBackground(Color.brandBlack, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .onReceive(NotificationCenter.default.publisher(for: .navigateToTasks)) { _ in
                 selectedTab = .today
             }
-        }
-        .onChange(of: selectedTab) { _, newTab in
-            guard newTab == .history else { return }
-            guard !storeService.isProUnlocked else { return }
-            guard !ProNudgeService.shared.hasSeenHistoryNudge else { return }
-            guard ProNudgeService.shared.canShow else { return }
+            .onChange(of: selectedTab) { _, newTab in
+                guard newTab == .history else { return }
+                guard !storeService.isProUnlocked else { return }
+                guard !ProNudgeService.shared.hasSeenHistoryNudge else { return }
+                guard ProNudgeService.shared.canShow else { return }
 
-            ProNudgeService.shared.hasSeenHistoryNudge = true
-            ProNudgeService.shared.markShown()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    showHistoryProGlimpse = true
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 8.0) {
-                    withAnimation { showHistoryProGlimpse = false }
-                }
-            }
-        }
-        .overlay(alignment: .bottom) {
-            if showHistoryProGlimpse && selectedTab == .history {
-                ProGlimpseCard(
-                    variant: .historyTab,
-                    onUnlock: {
-                        withAnimation { showHistoryProGlimpse = false }
-                        showHistoryPaywall = true
-                    },
-                    onDismiss: {
+                ProNudgeService.shared.hasSeenHistoryNudge = true
+                ProNudgeService.shared.markShown()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        showHistoryProGlimpse = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 8.0) {
                         withAnimation { showHistoryProGlimpse = false }
                     }
-                )
-                .padding(.horizontal, Spacing.lg)
-                .padding(.bottom, 90)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .zIndex(10)
+                }
             }
-        }
-        .sheet(isPresented: $showHistoryPaywall) {
-            PaywallView()
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
+            .overlay(alignment: .bottom) {
+                if showHistoryProGlimpse && selectedTab == .history {
+                    ProGlimpseCard(
+                        variant: .historyTab,
+                        onUnlock: {
+                            withAnimation { showHistoryProGlimpse = false }
+                            showHistoryPaywall = true
+                        },
+                        onDismiss: {
+                            withAnimation { showHistoryProGlimpse = false }
+                        }
+                    )
+                    .padding(.horizontal, Spacing.lg)
+                    .padding(.bottom, 90)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(10)
+                }
+            }
+            .sheet(isPresented: $showHistoryPaywall) {
+                PaywallView()
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+            }
+            .sheet(isPresented: $showYearInPixels) {
+                YearInPixelsView()
+            }
+            .sheet(isPresented: $showStats) {
+                StatsView()
+            }
         }
     }
 
     // MARK: - Pill Toggle
 
+    /// Pill toggle with a SINGLE sliding green indicator measured via PreferenceKey.
+    /// The indicator is one Capsule that moves — no two-capsule crossfade flash.
     private var pillToggle: some View {
         HStack(spacing: Spacing.xs) {
             ForEach(Tab.allCases, id: \.self) { tab in
                 tabButton(tab: tab)
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear.preference(
+                                key: TabButtonFrameKey.self,
+                                value: [tab: geo.frame(in: .named("pillSpace"))]
+                            )
+                        }
+                    )
             }
         }
         .padding(Spacing.xs)
-        .background(
-            Capsule()
-                .fill(Color.darkGray1)
-                .shadow(color: Color.black.opacity(0.4), radius: 12, x: 0, y: 4)
-        )
+        .background { pillBackground }
+        .coordinateSpace(name: "pillSpace")
+        .onPreferenceChange(TabButtonFrameKey.self) { frames in
+            tabButtonFrames = frames
+        }
+    }
+
+    /// Layered background: dark pill base + single sliding green indicator.
+    private var pillBackground: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .topLeading) {
+                // Dark pill base
+                Capsule()
+                    .fill(Color.darkGray1)
+                    .shadow(color: Color.black.opacity(0.4), radius: 12, x: 0, y: 4)
+                    .frame(width: geo.size.width, height: geo.size.height)
+
+                // One indicator capsule, positioned at the selected button's frame
+                if let frame = tabButtonFrames[selectedTab], frame != .zero {
+                    Capsule()
+                        .fill(Color.recoveryGreen)
+                        .frame(width: frame.width, height: frame.height)
+                        .offset(x: frame.minX, y: frame.minY)
+                        .animation(
+                            .spring(response: 0.3, dampingFraction: 0.8),
+                            value: selectedTab
+                        )
+                }
+            }
+        }
     }
 
     // MARK: - Tab Button
@@ -184,10 +314,7 @@ struct MainTabView: View {
     private func tabButton(tab: Tab) -> some View {
         Button {
             HapticService.lightImpact()
-
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                selectedTab = tab
-            }
+            selectedTab = tab
         } label: {
             HStack(spacing: Spacing.xs) {
                 Image(systemName: selectedTab == tab ? tab.iconFilled : tab.icon)
@@ -200,15 +327,19 @@ struct MainTabView: View {
             .foregroundStyle(selectedTab == tab ? Color.brandBlack : Color.mediumGray)
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.sm)
-            .background {
-                if selectedTab == tab {
-                    Capsule()
-                        .fill(Color.recoveryGreen)
-                        .matchedGeometryEffect(id: "indicator", in: animation)
-                }
-            }
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Preference Key
+
+/// Collects each tab button's frame in the pill's coordinate space.
+private struct TabButtonFrameKey: PreferenceKey {
+    typealias Value = [MainTabView.Tab: CGRect]
+    static var defaultValue: [MainTabView.Tab: CGRect] = [:]
+    static func reduce(value: inout Value, nextValue: () -> Value) {
+        value.merge(nextValue()) { $1 }
     }
 }
 

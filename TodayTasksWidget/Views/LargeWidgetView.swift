@@ -33,13 +33,6 @@ struct LargeWidgetView: View {
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(Color.widgetMediumGray)
 
-                    Text("PRO")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(Color.widgetBrandBlack)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(Color.widgetRecoveryGreen)
-                        .clipShape(Capsule())
 
                     Spacer()
                 }
