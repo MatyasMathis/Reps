@@ -188,6 +188,30 @@ struct YearInPixelsView: View {
             .navigationTitle("Year in Pixels")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if store.isProUnlocked {
+                        Button {
+                            let generator = UIImpactFeedbackGenerator(style: .light)
+                            generator.impactOccurred()
+                            ShareService.renderAndShare(
+                                view: ShareableYearCard(
+                                    selectedYear: selectedYear,
+                                    monthRows: monthRows,
+                                    monthNames: monthNames,
+                                    totalCompletions: totalCompletions,
+                                    activeDays: activeDays,
+                                    longestStreak: longestStreak
+                                ),
+                                size: CGSize(width: 1080, height: 1920)
+                            )
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(Color.recoveryGreen)
+                        }
+                    }
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                         .foregroundStyle(Color.recoveryGreen)

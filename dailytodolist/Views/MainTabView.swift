@@ -21,7 +21,6 @@ struct MainTabView: View {
     // MARK: - State
 
     @State private var selectedTab: Tab = .today
-    @Namespace private var animation
 
     // Pro glimpse — history tab first-visit nudge
     @ObservedObject private var storeService = StoreKitService.shared
@@ -100,7 +99,7 @@ struct MainTabView: View {
                 TaskListView()
                     .opacity(selectedTab == .today ? 1 : 0)
                     // Disable inherited animation so the content snap is instant
-                    // (the pill indicator still animates via matchedGeometryEffect).
+                    // (the pill indicator animates independently via .animation modifier).
                     .transaction { $0.animation = nil }
                     .allowsHitTesting(selectedTab == .today)
 
@@ -117,9 +116,7 @@ struct MainTabView: View {
         }
         .ignoresSafeArea(.keyboard)
         .onReceive(NotificationCenter.default.publisher(for: .navigateToTasks)) { _ in
-            withAnimation {
-                selectedTab = .today
-            }
+            selectedTab = .today
         }
         .onChange(of: selectedTab) { _, newTab in
             guard newTab == .history else { return }
@@ -184,10 +181,7 @@ struct MainTabView: View {
     private func tabButton(tab: Tab) -> some View {
         Button {
             HapticService.lightImpact()
-
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                selectedTab = tab
-            }
+            selectedTab = tab
         } label: {
             HStack(spacing: Spacing.xs) {
                 Image(systemName: selectedTab == tab ? tab.iconFilled : tab.icon)
@@ -200,13 +194,12 @@ struct MainTabView: View {
             .foregroundStyle(selectedTab == tab ? Color.brandBlack : Color.mediumGray)
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.sm)
-            .background {
-                if selectedTab == tab {
-                    Capsule()
-                        .fill(Color.recoveryGreen)
-                        .matchedGeometryEffect(id: "indicator", in: animation)
-                }
-            }
+            .background(
+                Capsule()
+                    .fill(Color.recoveryGreen)
+                    .opacity(selectedTab == tab ? 1 : 0)
+            )
+            .animation(.easeInOut(duration: 0.2), value: selectedTab)
         }
         .buttonStyle(.plain)
     }

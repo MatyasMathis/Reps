@@ -90,19 +90,17 @@ struct CategoryTasksList: View {
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(stats.enumerated()), id: \.element.task.id) { index, entry in
-                        CategoryTaskRow(
-                            task: entry.task,
-                            completionCount: entry.completionCount,
-                            streak: entry.streak,
-                            rate: entry.rate
-                        )
-                        .contextMenu {
-                            Button {
-                                selectedTask = entry.task
-                            } label: {
-                                Label("View Calendar", systemImage: "calendar")
-                            }
+                        Button {
+                            selectedTask = entry.task
+                        } label: {
+                            CategoryTaskRow(
+                                task: entry.task,
+                                completionCount: entry.completionCount,
+                                streak: entry.streak,
+                                rate: entry.rate
+                            )
                         }
+                        .buttonStyle(.plain)
 
                         if index < stats.count - 1 {
                             Divider()
@@ -279,9 +277,39 @@ struct TaskCalendarSheet: View {
     let task: TodoTask
     @Environment(\.dismiss) private var dismiss
     @State private var displayedMonth = Date()
+    @State private var showShare = false
 
     private var completionCount: Int {
         task.completions?.count ?? 0
+    }
+
+    private var completionDates: Set<Date> {
+        let calendar = Calendar.current
+        guard let completions = task.completions else { return [] }
+        return Set(completions.map { calendar.startOfDay(for: $0.completedAt) })
+    }
+
+    private var taskStreak: Int {
+        let calendar = Calendar.current
+        let dates = completionDates
+        guard !dates.isEmpty else { return 0 }
+
+        var streak = 0
+        var checkDate = calendar.startOfDay(for: Date())
+
+        if !dates.contains(checkDate) {
+            guard let yesterday = calendar.date(byAdding: .day, value: -1, to: checkDate) else { return 0 }
+            if !dates.contains(yesterday) { return 0 }
+            checkDate = yesterday
+        }
+
+        while dates.contains(checkDate) {
+            streak += 1
+            guard let prev = calendar.date(byAdding: .day, value: -1, to: checkDate) else { break }
+            checkDate = prev
+        }
+
+        return streak
     }
 
     var body: some View {
@@ -314,6 +342,25 @@ struct TaskCalendarSheet: View {
                             task: task,
                             displayedMonth: $displayedMonth
                         )
+
+                        // Share button
+                        Button {
+                            let generator = UIImpactFeedbackGenerator(style: .light)
+                            generator.impactOccurred()
+                            showShare = true
+                        } label: {
+                            HStack(spacing: Spacing.sm) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 14, weight: .bold))
+                                Text("Share Calendar")
+                                    .font(.system(size: Typography.bodySize, weight: .bold))
+                            }
+                            .foregroundStyle(Color.brandBlack)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: ComponentSize.buttonHeight)
+                            .background(Color.recoveryGreen)
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+                        }
                     }
                     .padding(.horizontal, Spacing.lg)
                     .padding(.bottom, Spacing.xxl)
@@ -333,6 +380,19 @@ struct TaskCalendarSheet: View {
             }
             .toolbarBackground(Color.brandBlack, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .sheet(isPresented: $showShare) {
+                CalendarShareSheet(
+                    categoryName: task.title,
+                    categoryIcon: "checkmark.circle.fill",
+                    categoryColorHex: "2DD881",
+                    completionDates: completionDates,
+                    displayedMonth: displayedMonth,
+                    streak: taskStreak,
+                    completionCount: completionCount
+                )
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+            }
         }
     }
 }
