@@ -27,7 +27,6 @@ struct HistoryView: View {
     // MARK: - State
 
     @State private var refreshID = UUID()
-    @State private var showStats = false
     @State private var showCalendarSheet = false
     @State private var calendarMonth = Date()
     @State private var scrollProxy: ScrollViewProxy?
@@ -65,8 +64,7 @@ struct HistoryView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            ZStack {
+        ZStack {
                 // Background
                 Color.brandBlack.ignoresSafeArea()
 
@@ -90,45 +88,17 @@ struct HistoryView: View {
                         }
                     }
                 }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Text("History")
-                        .font(.system(size: Typography.h3Size, weight: .bold))
-                        .foregroundStyle(Color.pureWhite)
-                        .fixedSize()
-                }
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showStats = true
-                    } label: {
-                        HStack(spacing: Spacing.xs) {
-                            Image(systemName: "chart.bar.fill")
-                            Text("Stats")
-                        }
-                        .font(.system(size: Typography.bodySize, weight: .medium))
-                        .foregroundStyle(Color.recoveryGreen)
-                    }
-                }
-            }
-            .toolbarBackground(Color.brandBlack, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .onChange(of: scenePhase) { oldPhase, newPhase in
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
                 // Refresh data when app comes to foreground (e.g., after widget interaction)
                 if newPhase == .active {
                     refreshID = UUID()
                 }
             }
             .id(refreshID)
-            .sheet(isPresented: $showStats) {
-                StatsView()
-            }
             .sheet(isPresented: $showCalendarSheet) {
                 calendarSheet
             }
-        }
     }
 
     // MARK: - Subviews

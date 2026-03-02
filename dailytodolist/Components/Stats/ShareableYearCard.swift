@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Branded 1080x1920 card with the Year in Pixels heatmap rendered offscreen via ImageRenderer.
 ///
@@ -22,6 +23,7 @@ struct ShareableYearCard: View {
     let totalCompletions: Int
     let activeDays: Int
     let longestStreak: Int
+    let backgroundImage: UIImage?
 
     // MARK: - Constants
 
@@ -43,7 +45,27 @@ struct ShareableYearCard: View {
 
     var body: some View {
         ZStack {
-            bgBlack
+            // Background
+            if let image = backgroundImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: cardWidth, height: cardHeight)
+                    .clipped()
+
+                // Heavy overlay for readability
+                LinearGradient(
+                    colors: [
+                        Color.black.opacity(0.3),
+                        Color.black.opacity(0.4),
+                        Color.black.opacity(0.85)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            } else {
+                bgBlack
+            }
 
             VStack(spacing: 0) {
                 Spacer()
@@ -215,7 +237,8 @@ struct ShareableYearCard: View {
         monthNames: monthNames,
         totalCompletions: 342,
         activeDays: 87,
-        longestStreak: 14
+        longestStreak: 14,
+        backgroundImage: nil
     )
     .scaleEffect(0.22)
     .frame(width: 1080 * 0.22, height: 1920 * 0.22)

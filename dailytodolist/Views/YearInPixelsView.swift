@@ -34,6 +34,7 @@ struct YearInPixelsView: View {
 
     @State private var selectedYear: Int
     @State private var selectedDayInfo: DayInfo?
+    @State private var showShare = false
 
     // MARK: - Constants
 
@@ -193,17 +194,7 @@ struct YearInPixelsView: View {
                         Button {
                             let generator = UIImpactFeedbackGenerator(style: .light)
                             generator.impactOccurred()
-                            ShareService.renderAndShare(
-                                view: ShareableYearCard(
-                                    selectedYear: selectedYear,
-                                    monthRows: monthRows,
-                                    monthNames: monthNames,
-                                    totalCompletions: totalCompletions,
-                                    activeDays: activeDays,
-                                    longestStreak: longestStreak
-                                ),
-                                size: CGSize(width: 1080, height: 1920)
-                            )
+                            showShare = true
                         } label: {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 16, weight: .semibold))
@@ -219,6 +210,16 @@ struct YearInPixelsView: View {
             }
             .toolbarBackground(Color.brandBlack, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .sheet(isPresented: $showShare) {
+                YearShareSheet(
+                    selectedYear: selectedYear,
+                    monthRows: monthRows,
+                    monthNames: monthNames,
+                    totalCompletions: totalCompletions,
+                    activeDays: activeDays,
+                    longestStreak: longestStreak
+                )
+            }
         }
     }
 

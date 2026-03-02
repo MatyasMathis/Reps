@@ -36,11 +36,11 @@ struct TaskListView: View {
     @State private var showCelebration = false
     @State private var celebrationMessage = ""
 
-    // Year in Pixels sheet
-    @State private var showYearInPixels = false
+    // Year in Pixels sheet — opened from MainTabView toolbar
+    // @State private var showYearInPixels removed (owned by MainTabView)
 
-    // Settings sheet
-    @State private var showSettings = false
+    // Settings sheet — opened from MainTabView toolbar
+    // @State private var showSettings removed (owned by MainTabView)
 
     // Pro paywall (for gated share features)
     @ObservedObject private var storeService = StoreKitService.shared
@@ -95,21 +95,12 @@ struct TaskListView: View {
         todayTasks.count
     }
 
-    /// Current streak (consecutive days with completions)
-    private var currentStreak: Int {
-        calculateStreak()
-    }
-
-    /// Formatted current date
-    private var formattedDate: String {
-        Date().formatted(.dateTime.month(.abbreviated).day())
-    }
-
     // MARK: - Body
+    // NOTE: No NavigationStack here — MainTabView owns the single NavigationStack.
+    //       Toolbar items (Today title, streak badge, settings, date) live in MainTabView.
 
     var body: some View {
-        NavigationStack {
-            ZStack {
+        ZStack {
                 // Background
                 Color.brandBlack.ignoresSafeArea()
 
@@ -185,44 +176,6 @@ struct TaskListView: View {
                     .zIndex(2)
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Text("Today")
-                        .font(.system(size: Typography.h3Size, weight: .bold))
-                        .foregroundStyle(Color.pureWhite)
-                        .fixedSize()
-                }
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: Spacing.md) {
-                        // Settings gear
-                        Button {
-                            showSettings = true
-                        } label: {
-                            Image(systemName: "gearshape")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundStyle(Color.mediumGray)
-                        }
-
-                        // Date
-                        Text(formattedDate)
-                            .font(.system(size: Typography.bodySize, weight: .medium))
-                            .foregroundStyle(Color.mediumGray)
-
-                        // Streak badge — tappable to open Year in Pixels
-                        if currentStreak > 0 {
-                            Button {
-                                showYearInPixels = true
-                            } label: {
-                                StreakBadge(count: currentStreak)
-                            }
-                        }
-                    }
-                }
-            }
-            .toolbarBackground(Color.brandBlack, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
             .sheet(isPresented: $isShowingAddSheet, onDismiss: {
                 // Refresh tasks after adding or editing via autocomplete
                 withAnimation {
@@ -247,14 +200,6 @@ struct TaskListView: View {
                 }
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
-            }
-            .sheet(isPresented: $showYearInPixels) {
-                YearInPixelsView()
-            }
-            .sheet(isPresented: $showSettings) {
-                SettingsView()
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
             }
             .sheet(isPresented: $showCategoryShare) {
                 CategoryShareSheet(
@@ -291,7 +236,6 @@ struct TaskListView: View {
             }
             .id(refreshID)
             .environment(\.editMode, $editMode)
-        }
     }
 
     // MARK: - Subviews
