@@ -4,231 +4,626 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>REPS — Lock In.</title>
+  <meta name="description" content="REPS is a daily habit and task tracker for iOS. Lock in your routine, build unbreakable streaks, and track every rep." />
+  <meta property="og:title" content="REPS — Lock In." />
+  <meta property="og:description" content="The daily habit and task tracker built for people who take their routine seriously." />
+  <meta property="og:image" content="logo.png" />
+
   <style>
+    /* ── Reset ──────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0a0a0a;
-      --card: #1a1a1a;
-      --green: #00e5a0;
-      --white: #ffffff;
-      --gray: #888888;
-      --border: #2a2a2a;
+      --bg:           #0A0A0A;
+      --card:         #111111;
+      --card-2:       #1A1A1A;
+      --green:        #2DD881;
+      --green-dim:    rgba(45, 216, 129, 0.10);
+      --green-border: rgba(45, 216, 129, 0.22);
+      --green-glow:   rgba(45, 216, 129, 0.18);
+      --purple:       #7B61FF;
+      --purple-dim:   rgba(123, 97, 255, 0.12);
+      --purple-border:rgba(123, 97, 255, 0.28);
+      --white:        #FFFFFF;
+      --gray:         #808080;
+      --gray-dim:     #404040;
+      --border:       #2A2A2A;
+      --border-hi:    #3D3D3D;
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
       color: var(--white);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
       min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Hero ───────────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px 100px;
+      overflow: hidden;
+    }
+
+    /* Radial green ambient glow */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -58%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, var(--green-glow) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    header {
+    /* App icon */
+    .app-icon {
+      width: 110px;
+      height: 110px;
+      border-radius: 26px;
+      overflow: hidden;
+      margin-bottom: 28px;
+      box-shadow:
+        0 0 0 1px var(--border),
+        0 4px 12px rgba(0,0,0,0.5),
+        0 20px 60px rgba(45, 216, 129, 0.22);
+    }
+    .app-icon img {
       width: 100%;
-      max-width: 680px;
-      padding: 64px 24px 48px;
-      text-align: center;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    .app-icon {
-      width: 96px;
-      height: 96px;
-      background: var(--card);
-      border-radius: 22px;
+    /* Wordmark */
+    .wordmark {
+      font-size: clamp(72px, 14vw, 112px);
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+
+    /* "Lock in." */
+    .lock-in {
+      font-size: clamp(26px, 5.5vw, 44px);
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: 0.02em;
+      font-style: italic;
+      margin-bottom: 18px;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--gray);
+      font-weight: 400;
+      max-width: 340px;
+      line-height: 1.65;
+      margin-bottom: 40px;
+    }
+
+    /* CTA */
+    .btn-primary {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      margin-bottom: 24px;
-      border: 1px solid var(--border);
-    }
-
-    h1 {
-      font-size: 42px;
-      font-weight: 900;
-      letter-spacing: 6px;
-      color: var(--white);
-      margin-bottom: 8px;
-    }
-
-    .tagline {
-      font-size: 16px;
-      color: var(--gray);
-      font-weight: 500;
-      margin-bottom: 32px;
-    }
-
-    .badge {
-      display: inline-block;
-      background: var(--green);
-      color: #000;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      padding: 4px 12px;
-      border-radius: 999px;
-      margin-bottom: 32px;
-    }
-
-    .cta {
-      display: inline-block;
+      gap: 9px;
       background: var(--white);
       color: #000;
       font-weight: 700;
       font-size: 15px;
-      padding: 14px 32px;
-      border-radius: 12px;
+      padding: 15px 30px;
+      border-radius: 14px;
       text-decoration: none;
-      transition: opacity 0.15s;
+      letter-spacing: 0.01em;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .cta:hover { opacity: 0.85; }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(255,255,255,0.14);
+    }
+    .btn-primary svg { flex-shrink: 0; }
 
-    main {
-      width: 100%;
-      max-width: 680px;
-      padding: 0 24px;
+    /* Scroll cue */
+    .scroll-cue {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--gray-dim);
+      animation: float 2.4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(7px); }
     }
 
-    .features {
+    /* ── Stats strip ────────────────────────────────────────────── */
+    .stats-strip {
+      display: flex;
+      justify-content: center;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .stat {
+      flex: 1;
+      min-width: 110px;
+      padding: 22px 12px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--green);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      color: var(--gray);
+      text-transform: uppercase;
+    }
+
+    /* ── Shared section wrapper ─────────────────────────────────── */
+    .section {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--green);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .section-heading {
+      font-size: clamp(26px, 4.5vw, 38px);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 48px;
+      max-width: 460px;
+    }
+
+    /* ── Feature grid ───────────────────────────────────────────── */
+    .features-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin: 48px 0;
+      gap: 10px;
     }
-    @media (max-width: 480px) { .features { grid-template-columns: 1fr; } }
+    @media (max-width: 500px) { .features-grid { grid-template-columns: 1fr; } }
 
     .feature-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
+      border-radius: 20px;
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-2px);
+    }
+    /* top-edge highlight */
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+    }
+    .feature-card.green-accent  { border-color: var(--green-border); }
+    .feature-card.green-accent::before {
+      background: linear-gradient(90deg, transparent, rgba(45,216,129,0.35), transparent);
     }
 
-    .feature-icon {
-      font-size: 24px;
-      margin-bottom: 10px;
+    .icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+    .icon-wrap.green  { background: var(--green-dim);  border: 1px solid var(--green-border); }
+    .icon-wrap.muted  { background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
+    .icon-wrap svg { width: 20px; height: 20px; }
+
+    .feature-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .feature-desc  { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+    /* ── Divider ────────────────────────────────────────────────── */
+    .divider {
+      max-width: 720px;
+      margin: 0 auto;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
     }
 
-    .feature-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--white);
-      margin-bottom: 4px;
+    /* ── Pro card ───────────────────────────────────────────────── */
+    .pro-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
     }
-
-    .feature-desc {
-      font-size: 13px;
-      color: var(--gray);
-      line-height: 1.5;
+    /* purple ambient */
+    .pro-card::before {
+      content: '';
+      position: absolute;
+      top: -100px; right: -100px;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(123,97,255,0.14) 0%, transparent 70%);
+      pointer-events: none;
     }
+    .pro-card > * { position: relative; z-index: 1; }
 
-    .section-title {
+    .pro-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--purple-dim);
+      border: 1px solid var(--purple-border);
+      color: var(--purple);
       font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      color: var(--gray);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 6px 14px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .pro-badge svg { width: 10px; height: 10px; }
+
+    .pro-card h2 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 800;
+      line-height: 1.2;
       margin-bottom: 12px;
+    }
+    .pro-card > p {
+      color: var(--gray);
+      font-size: 16px;
+      line-height: 1.65;
+      margin-bottom: 28px;
+      max-width: 460px;
+    }
+
+    .pro-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      margin-bottom: 32px;
+    }
+    .pro-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .pro-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--purple-dim);
+      border: 1px solid var(--purple-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pro-dot svg { width: 11px; height: 11px; }
+    .pro-row-text { font-size: 15px; font-weight: 500; }
+
+    /* ── Support links ──────────────────────────────────────────── */
+    .support-section {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+    .support-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--green);
+      text-transform: uppercase;
+      margin-bottom: 16px;
     }
 
     .link-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 20px;
       overflow: hidden;
-      margin-bottom: 48px;
     }
-
     .link-row {
       display: flex;
       align-items: center;
-      padding: 16px 20px;
+      gap: 14px;
+      padding: 17px 22px;
       text-decoration: none;
       color: var(--white);
       transition: background 0.15s;
     }
-    .link-row:hover { background: #222; }
+    .link-row:hover { background: #161616; }
     .link-row + .link-row { border-top: 1px solid var(--border); }
 
-    .link-row-icon {
-      font-size: 18px;
-      width: 32px;
+    .link-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
+    .link-icon svg { width: 16px; height: 16px; }
+    .link-text   { flex: 1; font-size: 15px; font-weight: 500; }
+    .link-arrow  { color: var(--gray-dim); font-size: 20px; font-weight: 300; line-height: 1; }
 
-    .link-row-text { flex: 1; font-size: 15px; font-weight: 500; }
-    .link-row-arrow { color: var(--gray); font-size: 13px; }
-
+    /* ── Footer ─────────────────────────────────────────────────── */
     footer {
-      width: 100%;
-      max-width: 680px;
-      padding: 0 24px 48px;
-      text-align: center;
-      color: var(--gray);
-      font-size: 12px;
+      border-top: 1px solid var(--border);
+      padding: 28px 24px;
     }
-
-    footer a { color: var(--gray); text-decoration: underline; }
+    .footer-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-brand {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      color: var(--white);
+    }
+    .footer-copy { font-size: 12px; color: var(--gray); }
+    .footer-links { display: flex; gap: 18px; }
+    .footer-links a {
+      font-size: 12px;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-links a:hover { color: var(--white); }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="app-icon">💪</div>
-    <h1>REPS</h1>
-    <p class="tagline">Daily habits &amp; task tracker for iOS</p>
-    <span class="badge">Available on the App Store</span><br /><br />
-    <a class="cta" href="https://apps.apple.com/app/id6758785466">Download on the App Store</a>
-  </header>
+  <!-- ─────────────── HERO ─────────────── -->
+  <section class="hero">
+    <div class="hero-content">
 
-  <main>
-    <div class="features">
-      <div class="feature-card">
-        <div class="feature-icon">✅</div>
-        <div class="feature-title">Daily Tasks</div>
-        <div class="feature-desc">Create one-time and recurring tasks — daily, weekly, or monthly.</div>
+      <div class="app-icon">
+        <img src="logo.png" alt="REPS" />
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">Stats &amp; Streaks</div>
-        <div class="feature-desc">Track completion rates, streaks, and your year-in-pixels view.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔲</div>
-        <div class="feature-title">Home Screen Widget</div>
-        <div class="feature-desc">See today's tasks at a glance in small, medium, or large widgets.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">☁️</div>
-        <div class="feature-title">iCloud Sync (Pro)</div>
-        <div class="feature-desc">Keep tasks in sync across all your Apple devices with REPS Pro.</div>
-      </div>
+
+      <h1 class="wordmark">REPS</h1>
+      <p class="lock-in">Lock in.</p>
+      <p class="hero-sub">The daily habit and task tracker built for people who take their routine seriously.</p>
+
+      <a class="btn-primary" href="https://apps.apple.com/app/id6758785466">
+        <svg width="15" height="18" viewBox="0 0 24 29" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20.998 15.386c-.034-3.743 3.057-5.546 3.196-5.63-1.743-2.546-4.453-2.893-5.413-2.928-2.296-.234-4.499 1.363-5.663 1.363-1.179 0-2.986-1.33-4.913-1.295-2.51.038-4.843 1.476-6.135 3.724-2.628 4.552-.671 11.269 1.882 14.956 1.253 1.805 2.737 3.826 4.68 3.754 1.887-.074 2.597-1.209 4.879-1.209 2.265 0 2.923 1.209 4.913 1.169 2.03-.036 3.311-1.83 4.556-3.641 1.442-2.085 2.032-4.117 2.063-4.221-.045-.018-3.948-1.514-3.985-6.042zM17.25 4.547C18.273 3.308 18.97 1.6 18.77 0c-1.476.06-3.27.984-4.33 2.221-.95 1.094-1.78 2.843-1.556 4.52 1.647.126 3.33-.836 4.366-2.194z"/>
+        </svg>
+        Download on the App Store
+      </a>
     </div>
 
-    <p class="section-title">SUPPORT &amp; LEGAL</p>
+    <div class="scroll-cue" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ─────────────── STATS STRIP ─────────────── -->
+  <div class="stats-strip">
+    <div class="stat">
+      <div class="stat-value">Free</div>
+      <div class="stat-label">To Download</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">iOS</div>
+      <div class="stat-label">Platform</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">Widgets</div>
+      <div class="stat-label">Home Screen</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">Pro</div>
+      <div class="stat-label">Available</div>
+    </div>
+  </div>
+
+  <!-- ─────────────── FEATURES ─────────────── -->
+  <div class="section">
+    <p class="eyebrow">What you get</p>
+    <h2 class="section-heading">Everything you need to build unbreakable habits.</h2>
+
+    <div class="features-grid">
+
+      <div class="feature-card green-accent">
+        <div class="icon-wrap green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2DD881" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="feature-title">Daily Tasks</div>
+        <div class="feature-desc">Create one-time and recurring tasks — daily, weekly, or monthly. Stay on top of every rep.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon-wrap green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2DD881" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+        </div>
+        <div class="feature-title">Stats &amp; Streaks</div>
+        <div class="feature-desc">Completion rates, streaks, weekly rhythms, and a year-in-pixels view of your progress.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon-wrap muted">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </div>
+        <div class="feature-title">Home Screen Widget</div>
+        <div class="feature-desc">See today's tasks at a glance in small, medium, or large widgets. No unlock required.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon-wrap green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2DD881" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/>
+            <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+          </svg>
+        </div>
+        <div class="feature-title">Recurring Tasks</div>
+        <div class="feature-desc">Set tasks to repeat daily, weekly, or monthly. Your routine, automated.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─────────────── PRO ─────────────── -->
+  <div class="section">
+    <div class="pro-card">
+      <div class="pro-badge">
+        <svg viewBox="0 0 24 24" fill="#7B61FF"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        REPS Pro
+      </div>
+      <h2>Unlock the full picture.</h2>
+      <p>Go deeper with advanced statistics, iCloud sync, and detailed analytics to understand your performance at every level.</p>
+
+      <div class="pro-list">
+        <div class="pro-row">
+          <div class="pro-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#7B61FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="pro-row-text">Advanced Statistics &amp; Analytics</span>
+        </div>
+        <div class="pro-row">
+          <div class="pro-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#7B61FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="pro-row-text">iCloud Sync Across All Your Devices</span>
+        </div>
+        <div class="pro-row">
+          <div class="pro-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#7B61FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="pro-row-text">Per-task Completion Breakdown</span>
+        </div>
+        <div class="pro-row">
+          <div class="pro-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#7B61FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="pro-row-text">Shareable Stats Cards</span>
+        </div>
+        <div class="pro-row">
+          <div class="pro-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#7B61FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <span class="pro-row-text">Year in Pixels View</span>
+        </div>
+      </div>
+
+      <a class="btn-primary" href="https://apps.apple.com/app/id6758785466">Get REPS Pro</a>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ─────────────── SUPPORT ─────────────── -->
+  <div class="support-section">
+    <div style="padding: 64px 0 16px;">
+      <p class="support-eyebrow">Support &amp; Legal</p>
+    </div>
     <div class="link-card">
       <a class="link-row" href="mailto:repsdevs@gmail.com?subject=REPS%20Support">
-        <span class="link-row-icon">✉️</span>
-        <span class="link-row-text">Contact Support</span>
-        <span class="link-row-arrow">›</span>
+        <div class="link-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <span class="link-text">Contact Support</span>
+        <span class="link-arrow">›</span>
       </a>
       <a class="link-row" href="privacy-policy.html">
-        <span class="link-row-icon">🛡️</span>
-        <span class="link-row-text">Privacy Policy</span>
-        <span class="link-row-arrow">›</span>
+        <div class="link-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span class="link-text">Privacy Policy</span>
+        <span class="link-arrow">›</span>
       </a>
       <a class="link-row" href="terms.html">
-        <span class="link-row-icon">📄</span>
-        <span class="link-row-text">Terms of Service</span>
-        <span class="link-row-arrow">›</span>
+        <div class="link-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <span class="link-text">Terms of Service</span>
+        <span class="link-arrow">›</span>
       </a>
     </div>
-  </main>
+  </div>
 
+  <!-- ─────────────── FOOTER ─────────────── -->
   <footer>
-    <p>© 2026 Mathis Matyas-Istvan &nbsp;·&nbsp; <a href="privacy-policy.html">Privacy</a> &nbsp;·&nbsp; <a href="terms.html">Terms</a></p>
+    <div class="footer-inner">
+      <span class="footer-brand">REPS</span>
+      <span class="footer-copy">© 2026 Mathis Matyas-Istvan</span>
+      <div class="footer-links">
+        <a href="privacy-policy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="mailto:repsdevs@gmail.com">Contact</a>
+      </div>
+    </div>
   </footer>
 
 </body>
