@@ -20,6 +20,8 @@
 		A18BAC552F2A8C3C000D1278 /* ToggleTaskIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18BAC532F2A8C3C000D1278 /* ToggleTaskIntent.swift */; };
 		A18BAC602F2B000000EB2FF6 /* CustomCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18BAC5F2F2B000000EB2FF6 /* CustomCategory.swift */; };
 		A18BAC612F2B000000EB2FF6 /* CustomCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18BAC5F2F2B000000EB2FF6 /* CustomCategory.swift */; };
+		B1A2C30000000006000D1278 /* CloudSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A2C30000000001000D1278 /* CloudSyncTests.swift */; };
+		B1A2C30000000007000D1278 /* TodoTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A2C30000000002000D1278 /* TodoTaskTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +31,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = A18BAC032F2A7D3F000D1278;
 			remoteInfo = TodayTasksWidgetExtension;
+		};
+		B1A2C3000000000D000D1278 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1D9C81D2F24D72A00EB2FF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1D9C8242F24D72B00EB2FF6;
+			remoteInfo = dailytodolist;
 		};
 /* End PBXContainerItemProxy section */
 
