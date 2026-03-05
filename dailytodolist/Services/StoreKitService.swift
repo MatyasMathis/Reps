@@ -20,7 +20,7 @@ final class StoreKitService: ObservableObject {
 
     // MARK: - Published State
 
-    @Published private(set) var isProUnlocked: Bool = false
+    @Published private(set) var isProUnlocked: Bool
     @Published private(set) var proProduct: Product?
     @Published private(set) var purchaseState: PurchaseState = .idle
 
@@ -48,6 +48,9 @@ final class StoreKitService: ObservableObject {
     // MARK: - Init
 
     private init() {
+        // Read cache synchronously so the UI reflects Pro status immediately,
+        // without waiting for StoreKit's async entitlement check.
+        isProUnlocked = UserDefaults.standard.bool(forKey: Self.proUnlockedCacheKey)
         transactionListener = listenForTransactions()
 
         Task {
