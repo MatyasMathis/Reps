@@ -265,6 +265,9 @@ class TaskService {
             task.completions = []
         }
         task.completions?.append(completion)
+
+        // Explicit save so CloudKit uploads the completion record without delay.
+        try? modelContext.save()
     }
 
     /// Removes all completion records for a task
@@ -304,6 +307,8 @@ class TaskService {
             task.completions?.removeAll { $0.id == todayCompletion.id }
             // Delete from database
             modelContext.delete(todayCompletion)
+            // Explicit save so CloudKit removes the completion record without delay.
+            try? modelContext.save()
         }
     }
 
@@ -407,6 +412,15 @@ class TaskService {
     ///
     /// - Parameter task: The task to delete
     func deleteTask(_ task: TodoTask) {
+        // Explicitly delete each completion before the task so CloudKit generates
+        // individual tombstones per record. Relying solely on the cascade delete
+        // rule is unreliable with CloudKit — orphaned completion records can
+        // prevent the task tombstone from propagating to other devices.
+        if let completions = task.completions {
+            for completion in completions {
+                modelContext.delete(completion)
+            }
+        }
         modelContext.delete(task)
         refreshWidgets()
     }

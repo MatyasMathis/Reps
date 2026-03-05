@@ -34,7 +34,17 @@ struct RepsApp: App {
     @ObservedObject private var store = StoreKitService.shared
 
     init() {
-        let isPro = UserDefaults.standard.bool(forKey: StoreKitService.proUnlockedCacheKey)
+        // Check both the local cache and the iCloud KV store so that a Pro purchase
+        // made on another device is recognised here without requiring a re-purchase.
+        let localCache = UserDefaults.standard.bool(forKey: StoreKitService.proUnlockedCacheKey)
+        let iCloudCache = NSUbiquitousKeyValueStore.default.bool(forKey: StoreKitService.proUnlockedCacheKey)
+        let isPro = localCache || iCloudCache
+
+        // Keep the local cache in sync with what iCloud reported.
+        if iCloudCache && !localCache {
+            UserDefaults.standard.set(true, forKey: StoreKitService.proUnlockedCacheKey)
+        }
+
         container = SharedModelContainer.makeContainer(cloudSyncEnabled: isPro)
         // Record whether CloudKit was active at this launch so the Settings UI can
         // show the correct sync status without waiting for async StoreKit validation.

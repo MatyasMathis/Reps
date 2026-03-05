@@ -20,10 +20,23 @@ class OnboardingService {
 
     // MARK: - Properties
 
-    /// Whether the user has already been onboarded
+    /// Whether the user has already been onboarded.
+    ///
+    /// Reads from both local UserDefaults and iCloud Key-Value Store so that
+    /// returning users on a new device are not shown the starter tasks again.
     static var hasCompletedOnboarding: Bool {
-        get { UserDefaults.standard.bool(forKey: hasCompletedOnboardingKey) }
-        set { UserDefaults.standard.set(newValue, forKey: hasCompletedOnboardingKey) }
+        get {
+            // iCloud KV store syncs the flag across all devices on the same Apple ID.
+            if NSUbiquitousKeyValueStore.default.bool(forKey: hasCompletedOnboardingKey) {
+                return true
+            }
+            return UserDefaults.standard.bool(forKey: hasCompletedOnboardingKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: hasCompletedOnboardingKey)
+            NSUbiquitousKeyValueStore.default.set(newValue, forKey: hasCompletedOnboardingKey)
+            NSUbiquitousKeyValueStore.default.synchronize()
+        }
     }
 
     /// Whether the user has seen the first streak celebration (2-day)

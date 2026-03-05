@@ -610,7 +610,7 @@ struct TaskListView: View {
 
     private func deleteTask(_ task: TodoTask) {
         withAnimation {
-            modelContext.delete(task)
+            TaskService(modelContext: modelContext).deleteTask(task)
             updateTodayTasks()
         }
     }
