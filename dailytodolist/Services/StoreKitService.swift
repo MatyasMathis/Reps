@@ -85,7 +85,7 @@ final class StoreKitService: ObservableObject {
                 let transaction = try checkVerified(verification)
                 await transaction.finish()
                 isProUnlocked = true
-                UserDefaults.standard.set(true, forKey: Self.proUnlockedCacheKey)
+                Self.cacheProStatus(true)
                 purchaseState = .purchased
 
             case .userCancelled:
@@ -129,12 +129,20 @@ final class StoreKitService: ObservableObject {
                transaction.productID == Self.proProductID,
                transaction.revocationDate == nil {
                 isProUnlocked = true
-                UserDefaults.standard.set(true, forKey: Self.proUnlockedCacheKey)
+                Self.cacheProStatus(true)
                 return
             }
         }
         isProUnlocked = false
-        UserDefaults.standard.set(false, forKey: Self.proUnlockedCacheKey)
+        Self.cacheProStatus(false)
+    }
+
+    /// Persists Pro status in both local UserDefaults (for synchronous launch reads)
+    /// and iCloud Key-Value Store (to propagate the status to other devices automatically).
+    static func cacheProStatus(_ isPro: Bool) {
+        UserDefaults.standard.set(isPro, forKey: proUnlockedCacheKey)
+        NSUbiquitousKeyValueStore.default.set(isPro, forKey: proUnlockedCacheKey)
+        NSUbiquitousKeyValueStore.default.synchronize()
     }
 
     // MARK: - Transaction Listener

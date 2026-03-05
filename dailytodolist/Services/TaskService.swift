@@ -265,6 +265,9 @@ class TaskService {
             task.completions = []
         }
         task.completions?.append(completion)
+
+        // Explicit save so CloudKit uploads the completion record without delay.
+        try? modelContext.save()
     }
 
     /// Removes all completion records for a task
@@ -304,6 +307,8 @@ class TaskService {
             task.completions?.removeAll { $0.id == todayCompletion.id }
             // Delete from database
             modelContext.delete(todayCompletion)
+            // Explicit save so CloudKit removes the completion record without delay.
+            try? modelContext.save()
         }
     }
 
