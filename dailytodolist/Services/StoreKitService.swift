@@ -164,7 +164,12 @@ final class StoreKitService: ObservableObject {
             for await result in Transaction.updates {
                 if case .verified(let transaction) = result {
                     await transaction.finish()
-                    await self?.updateEntitlement()
+                    guard transaction.productID == StoreKitService.proProductID else { continue }
+                    let isActive = transaction.revocationDate == nil
+                    await MainActor.run {
+                        self?.isProUnlocked = isActive
+                        UserDefaults.standard.set(isActive, forKey: StoreKitService.proUnlockedCacheKey)
+                    }
                 }
             }
         }
