@@ -412,6 +412,15 @@ class TaskService {
     ///
     /// - Parameter task: The task to delete
     func deleteTask(_ task: TodoTask) {
+        // Explicitly delete each completion before the task so CloudKit generates
+        // individual tombstones per record. Relying solely on the cascade delete
+        // rule is unreliable with CloudKit — orphaned completion records can
+        // prevent the task tombstone from propagating to other devices.
+        if let completions = task.completions {
+            for completion in completions {
+                modelContext.delete(completion)
+            }
+        }
         modelContext.delete(task)
         refreshWidgets()
     }
