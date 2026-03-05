@@ -50,9 +50,11 @@ final class StoreKitService: ObservableObject {
     private init() {
         // Read cache synchronously so the UI reflects Pro status immediately,
         // without waiting for StoreKit's async entitlement check.
-        // In DEBUG builds default to Pro so simulator testing doesn't require StoreKit.
+        // In DEBUG builds, force Pro and persist it so RepsApp.init() also reads
+        // true on the next launch (RepsApp reads UserDefaults directly, not this property).
         #if DEBUG
         isProUnlocked = true
+        UserDefaults.standard.set(true, forKey: Self.proUnlockedCacheKey)
         #else
         isProUnlocked = UserDefaults.standard.bool(forKey: Self.proUnlockedCacheKey)
         #endif
