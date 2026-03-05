@@ -52,7 +52,7 @@ final class StoreKitService: ObservableObject {
 
         Task {
             await loadProducts()
-            await updateEntitlement()
+            await refreshEntitlement()
         }
     }
 
@@ -123,7 +123,10 @@ final class StoreKitService: ObservableObject {
 
     // MARK: - Entitlement Check
 
-    func updateEntitlement() async {
+    /// Silent check used at launch. Only upgrades to Pro — never downgrades.
+    /// `Transaction.currentEntitlements` can return empty on TestFlight due to
+    /// network latency, so we must not overwrite a cached `true` with `false` here.
+    private func refreshEntitlement() async {
         for await result in Transaction.currentEntitlements {
             if case .verified(let transaction) = result,
                transaction.productID == Self.proProductID,
@@ -133,8 +136,25 @@ final class StoreKitService: ObservableObject {
                 return
             }
         }
-        isProUnlocked = false
-        UserDefaults.standard.set(false, forKey: Self.proUnlockedCacheKey)
+        // Do not write false here — preserve the cached value.
+        // Definitive revocation is handled by listenForTransactions().
+        isProUnlocked = UserDefaults.standard.bool(forKey: Self.proUnlockedCacheKey)
+    }
+
+    /// Full sync after AppStore.sync() — safe to write false because the transaction
+    /// list is guaranteed to be fresh at this point.
+    func updateEntitlement() async {
+        var foundPro = false
+        for await result in Transaction.currentEntitlements {
+            if case .verified(let transaction) = result,
+               transaction.productID == Self.proProductID,
+               transaction.revocationDate == nil {
+                foundPro = true
+                break
+            }
+        }
+        isProUnlocked = foundPro
+        UserDefaults.standard.set(foundPro, forKey: Self.proUnlockedCacheKey)
     }
 
     // MARK: - Transaction Listener
