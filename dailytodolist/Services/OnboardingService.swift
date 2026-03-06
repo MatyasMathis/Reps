@@ -61,17 +61,9 @@ class OnboardingService {
     /// (after restart) where the KV store confirms this is an existing user, the
     /// tagged tasks are deleted before CloudKit can upload them.
     static func createStarterTasksIfNeeded(modelContext: ModelContext) {
-        // Existing user on a new device: the iCloud KV flag arrived (or was already
-        // present) after the previous launch created local onboarding tasks. Clean
-        // them up now so they are not uploaded to CloudKit.
-        let needsCleanup = UserDefaults.standard.bool(forKey: "needsOnboardingCleanup")
-        let kvSaysOnboarded = NSUbiquitousKeyValueStore.default.bool(forKey: hasCompletedOnboardingKey)
-        if needsCleanup && kvSaysOnboarded {
-            cleanupOnboardingTasks(modelContext: modelContext)
-            UserDefaults.standard.set(false, forKey: "needsOnboardingCleanup")
-            return
-        }
-
+        // The hasCompletedOnboarding getter checks iCloud KV first, so if a prior
+        // device already completed onboarding, this returns early without creating
+        // tasks — even on a completely fresh install.
         guard !hasCompletedOnboarding else { return }
 
         let taskService = TaskService(modelContext: modelContext)
@@ -101,9 +93,6 @@ class OnboardingService {
         )
         t3.isOnboarding = true
 
-        // Mark that onboarding tasks exist locally so the cleanup path fires on the
-        // next launch if iCloud KV confirms this is already an existing user.
-        UserDefaults.standard.set(true, forKey: "needsOnboardingCleanup")
         hasCompletedOnboarding = true
     }
 
