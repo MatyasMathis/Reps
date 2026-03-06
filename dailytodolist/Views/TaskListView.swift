@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 /// Main view for displaying and managing today's tasks
 ///
@@ -624,7 +625,12 @@ struct TaskListView: View {
         // Only update sortOrder for incomplete tasks
         let incompleteTasks = tasks.filter { !$0.isCompletedToday() }
         taskService.reorderTasks(incompleteTasks)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+            WidgetCenter.shared.reloadAllTimelines()
+        } catch {
+            print("Error saving task reorder: \(error)")
+        }
     }
 
     /// Calculates the current streak of consecutive days with completions

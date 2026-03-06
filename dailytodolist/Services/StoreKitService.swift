@@ -109,7 +109,7 @@ final class StoreKitService: ObservableObject {
 
         do {
             try await AppStore.sync()
-            await updateEntitlement()
+            await updateEntitlement(isExplicitSync: true)
 
             if isProUnlocked {
                 purchaseState = .restored
@@ -123,7 +123,7 @@ final class StoreKitService: ObservableObject {
 
     // MARK: - Entitlement Check
 
-    func updateEntitlement() async {
+    func updateEntitlement(isExplicitSync: Bool = false) async {
         for await result in Transaction.currentEntitlements {
             if case .verified(let transaction) = result,
                transaction.productID == Self.proProductID,
@@ -134,7 +134,14 @@ final class StoreKitService: ObservableObject {
             }
         }
         isProUnlocked = false
-        Self.cacheProStatus(false)
+        // Only clear the persistent cache (both UserDefaults and iCloud KV store)
+        // when the caller has first called AppStore.sync() to ensure the local
+        // receipt is up to date. Passive entitlement checks on launch must not
+        // erase a valid Pro status that arrived via iCloud KV from another device
+        // but whose StoreKit receipt hasn't yet propagated to this device.
+        if isExplicitSync {
+            Self.cacheProStatus(false)
+        }
     }
 
     /// Persists Pro status in both local UserDefaults (for synchronous launch reads)

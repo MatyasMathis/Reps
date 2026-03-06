@@ -260,11 +260,14 @@ class TaskService {
         let completion = TaskCompletion(task: task)
         modelContext.insert(completion)
 
-        // Ensure the completions array exists and add the new completion
+        // SwiftData's inverse relationship may have already added the completion
+        // to task.completions. Guard against a duplicate in-memory entry which
+        // would cause incorrect counts between insert and the next save/fetch.
         if task.completions == nil {
-            task.completions = []
+            task.completions = [completion]
+        } else if !(task.completions!.contains(where: { $0.id == completion.id })) {
+            task.completions!.append(completion)
         }
-        task.completions?.append(completion)
 
         // Explicit save so CloudKit uploads the completion record without delay.
         try? modelContext.save()
@@ -299,17 +302,21 @@ class TaskService {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
-        // Find today's completion record
-        if let todayCompletion = completions.first(where: { completion in
+        // Collect ALL of today's completion records. CloudKit sync between two
+        // devices completing the same task simultaneously can produce duplicate
+        // records for the same day. Deleting only `first` would leave a phantom
+        // record that keeps the task appearing as completed on other devices.
+        let todayCompletions = completions.filter { completion in
             calendar.startOfDay(for: completion.completedAt) == today
-        }) {
-            // Remove from task's completions array
-            task.completions?.removeAll { $0.id == todayCompletion.id }
-            // Delete from database
-            modelContext.delete(todayCompletion)
-            // Explicit save so CloudKit removes the completion record without delay.
-            try? modelContext.save()
         }
+        guard !todayCompletions.isEmpty else { return }
+
+        for todayCompletion in todayCompletions {
+            task.completions?.removeAll { $0.id == todayCompletion.id }
+            modelContext.delete(todayCompletion)
+        }
+        // Explicit save so CloudKit removes the completion records without delay.
+        try? modelContext.save()
     }
 
     // MARK: - History Operations
@@ -419,6 +426,14 @@ class TaskService {
         if let completions = task.completions {
             for completion in completions {
                 modelContext.delete(completion)
+            }
+            // Commit the completion tombstones to CloudKit before the task
+            // tombstone. If both are batched into a single save and that save is
+            // interrupted, completion records on other devices are never cleaned up.
+            do {
+                try modelContext.save()
+            } catch {
+                print("Error saving completion deletions before task delete: \(error)")
             }
         }
         modelContext.delete(task)
