@@ -77,11 +77,6 @@ final class TodoTask {
     /// Flag indicating if the task is active (not deleted)
     var isActive: Bool = true
 
-    /// Flag indicating this task was created as part of the onboarding flow.
-    /// Used to clean up starter tasks on a new device when the user's real
-    /// CloudKit data arrives after the first restart.
-    var isOnboarding: Bool = false
-
     /// Optional start date for the task (nil = starts immediately)
     /// Used for one-time and daily tasks to schedule them for a future date
     var startDate: Date?
