@@ -203,7 +203,7 @@ struct ProGlimpseCard: View {
                 Text("Unlock REPS Pro")
                     .font(.system(size: Typography.bodySize, weight: .bold))
             }
-            .foregroundStyle(Color.brandBlack)
+            .foregroundStyle(Color.onAccent)
             .frame(maxWidth: .infinity)
             .frame(height: 44)
             .background(Color.recoveryGreen)

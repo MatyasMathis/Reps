@@ -179,7 +179,7 @@ struct PaywallView: View {
                         }
                     }
                 }
-                .foregroundStyle(Color.brandBlack)
+                .foregroundStyle(Color.onAccent)
                 .frame(maxWidth: .infinity)
                 .frame(height: ComponentSize.buttonHeight)
                 .background(Color.recoveryGreen)

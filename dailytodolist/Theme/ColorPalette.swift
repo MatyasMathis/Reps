@@ -12,11 +12,22 @@ import SwiftData
 extension Color {
     // MARK: - Primary Colors
 
-    /// Deep, rich black for backgrounds
-    static let brandBlack = Color(hex: "0A0A0A")
+    /// Deep black in dark mode / light gray in light mode — app background
+    static let brandBlack = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.039, green: 0.039, blue: 0.039, alpha: 1) // #0A0A0A
+            : UIColor(red: 0.949, green: 0.949, blue: 0.969, alpha: 1) // #F2F2F7
+    })
 
-    /// High contrast white for text
-    static let pureWhite = Color(hex: "FFFFFF")
+    /// White in dark mode / black in light mode — primary text
+    static let pureWhite = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 1, green: 1, blue: 1, alpha: 1)             // #FFFFFF
+            : UIColor(red: 0, green: 0, blue: 0, alpha: 1)             // #000000
+    })
+
+    /// Always dark — for text/icons placed on accent (green) backgrounds
+    static let onAccent = Color(hex: "0A0A0A")
 
     /// Success, completion, positive actions
     static let recoveryGreen = Color(hex: "2DD881")
@@ -29,17 +40,33 @@ extension Color {
 
     // MARK: - Supporting Colors
 
-    /// Card backgrounds
-    static let darkGray1 = Color(hex: "1A1A1A")
+    /// Card backgrounds — dark gray in dark mode / white in light mode
+    static let darkGray1 = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.102, green: 0.102, blue: 0.102, alpha: 1) // #1A1A1A
+            : UIColor(red: 1, green: 1, blue: 1, alpha: 1)             // #FFFFFF
+    })
 
-    /// Elevated surfaces
-    static let darkGray2 = Color(hex: "2A2A2A")
+    /// Elevated surfaces / dividers — darker gray in dark mode / light gray in light mode
+    static let darkGray2 = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.165, green: 0.165, blue: 0.165, alpha: 1) // #2A2A2A
+            : UIColor(red: 0.898, green: 0.898, blue: 0.918, alpha: 1) // #E5E5EA
+    })
 
-    /// Secondary text
-    static let mediumGray = Color(hex: "808080")
+    /// Secondary text — adapts between dark and light mode
+    static let mediumGray = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.502, green: 0.502, blue: 0.502, alpha: 1) // #808080
+            : UIColor(red: 0.557, green: 0.557, blue: 0.576, alpha: 1) // #8E8E93
+    })
 
-    /// Borders, dividers
-    static let lightGray = Color(hex: "E0E0E0")
+    /// Borders, dividers — adapts between dark and light mode
+    static let lightGray = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.878, green: 0.878, blue: 0.878, alpha: 1) // #E0E0E0
+            : UIColor(red: 0.780, green: 0.780, blue: 0.800, alpha: 1) // #C7C7CC
+    })
 
     // MARK: - Category Colors
 

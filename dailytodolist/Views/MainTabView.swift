@@ -46,16 +46,23 @@ struct MainTabView: View {
     // MARK: - Init
 
     init() {
+        // Adaptive bar color — automatically resolves for the current color scheme
+        let adaptiveBarColor = UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor(red: 0.039, green: 0.039, blue: 0.039, alpha: 1) // #0A0A0A
+                : UIColor(red: 0.949, green: 0.949, blue: 0.969, alpha: 1) // #F2F2F7
+        }
+
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
-        tabBarAppearance.backgroundColor = UIColor(Color.brandBlack)
+        tabBarAppearance.backgroundColor = adaptiveBarColor
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
 
-        // Global fallback — keeps bar black even before SwiftUI toolbar modifiers fire.
+        // Global fallback — keeps bar in correct color even before SwiftUI toolbar modifiers fire.
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
-        navBarAppearance.backgroundColor = UIColor(Color.brandBlack)
+        navBarAppearance.backgroundColor = adaptiveBarColor
         navBarAppearance.shadowColor = .clear
         UINavigationBar.appearance().standardAppearance = navBarAppearance
         UINavigationBar.appearance().compactAppearance = navBarAppearance
@@ -324,7 +331,7 @@ struct MainTabView: View {
                     .font(.system(size: Typography.bodySize, weight: .semibold))
                     .fixedSize()
             }
-            .foregroundStyle(selectedTab == tab ? Color.brandBlack : Color.mediumGray)
+            .foregroundStyle(selectedTab == tab ? Color.onAccent : Color.mediumGray)
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.sm)
         }

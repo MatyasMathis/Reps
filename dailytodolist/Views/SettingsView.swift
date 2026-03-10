@@ -22,6 +22,7 @@ struct SettingsView: View {
     @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = false
     @AppStorage("notificationHour") private var notificationHour: Int = 8
     @AppStorage("notificationMinute") private var notificationMinute: Int = 0
+    @AppStorage("isDarkMode") private var isDarkMode: Bool = true
 
     // MARK: - Store
 
@@ -55,6 +56,7 @@ struct SettingsView: View {
                         proStatusSection
                         cloudSyncSection
                         notificationsSection
+                        appearanceSection
                         generalSection
                         dataSection
                         aboutSection
@@ -143,7 +145,7 @@ struct SettingsView: View {
                     if store.isProUnlocked {
                         Text("PRO")
                             .font(.system(size: Typography.captionSize, weight: .bold))
-                            .foregroundStyle(Color.brandBlack)
+                            .foregroundStyle(Color.onAccent)
                             .padding(.horizontal, Spacing.sm)
                             .padding(.vertical, Spacing.xs)
                             .background(Color.recoveryGreen)
@@ -151,7 +153,7 @@ struct SettingsView: View {
                     } else {
                         Text("UPGRADE")
                             .font(.system(size: Typography.captionSize, weight: .bold))
-                            .foregroundStyle(Color.brandBlack)
+                            .foregroundStyle(Color.onAccent)
                             .padding(.horizontal, Spacing.sm)
                             .padding(.vertical, Spacing.xs)
                             .background(Color.recoveryGreen)
@@ -311,7 +313,6 @@ struct SettingsView: View {
                             displayedComponents: .hourAndMinute
                         )
                         .labelsHidden()
-                        .colorScheme(.dark)
                     }
                     .padding(Spacing.lg)
                 }
@@ -338,6 +339,73 @@ struct SettingsView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Please enable notifications for REPS in Settings → Notifications.")
+        }
+    }
+
+    // MARK: - Appearance Section (Pro)
+
+    private var appearanceSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            sectionLabel("APPEARANCE")
+
+            if store.isProUnlocked {
+                HStack(spacing: Spacing.md) {
+                    Image(systemName: isDarkMode ? "moon.fill" : "sun.max.fill")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(isDarkMode ? Color.performancePurple : Color.personalOrange)
+                        .frame(width: 24)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Dark Mode")
+                            .font(.system(size: Typography.bodySize, weight: .medium))
+                            .foregroundStyle(Color.pureWhite)
+
+                        Text(isDarkMode ? "Switch to light mode" : "Switch to dark mode")
+                            .font(.system(size: Typography.captionSize, weight: .regular))
+                            .foregroundStyle(Color.mediumGray)
+                    }
+
+                    Spacer()
+
+                    Toggle("", isOn: $isDarkMode)
+                        .labelsHidden()
+                        .tint(Color.performancePurple)
+                }
+                .padding(Spacing.lg)
+                .background(Color.darkGray1)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+            } else {
+                Button {
+                    showPaywall = true
+                } label: {
+                    HStack(spacing: Spacing.md) {
+                        Image(systemName: "moon.fill")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(Color.mediumGray)
+                            .frame(width: 24)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Dark Mode")
+                                .font(.system(size: Typography.bodySize, weight: .medium))
+                                .foregroundStyle(Color.pureWhite)
+
+                            Text("Dark / Light toggle — Pro feature")
+                                .font(.system(size: Typography.captionSize, weight: .regular))
+                                .foregroundStyle(Color.mediumGray)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(Color.mediumGray)
+                    }
+                    .padding(Spacing.lg)
+                    .background(Color.darkGray1)
+                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 

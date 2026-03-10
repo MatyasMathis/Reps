@@ -191,7 +191,7 @@ struct CategoryShareSheet: View {
                 Text("Share")
                     .font(.system(size: Typography.bodySize, weight: .bold))
             }
-            .foregroundStyle(Color.brandBlack)
+            .foregroundStyle(Color.onAccent)
             .frame(maxWidth: .infinity)
             .frame(height: ComponentSize.buttonHeight)
             .background(categoryColor)

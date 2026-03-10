@@ -215,7 +215,7 @@ struct StatsView: View {
                                 Text("Share Calendar")
                                     .font(.system(size: Typography.bodySize, weight: .bold))
                             }
-                            .foregroundStyle(Color.brandBlack)
+                            .foregroundStyle(Color.onAccent)
                             .frame(maxWidth: .infinity)
                             .frame(height: ComponentSize.buttonHeight)
                             .background(categoryColor)
@@ -260,7 +260,7 @@ struct StatsView: View {
         } label: {
             Text(label.uppercased())
                 .font(.system(size: Typography.captionSize, weight: .bold))
-                .foregroundStyle(isSelected ? Color.brandBlack : color)
+                .foregroundStyle(isSelected ? Color.onAccent : color)
                 .padding(.horizontal, Spacing.md)
                 .padding(.vertical, Spacing.sm)
                 .background(

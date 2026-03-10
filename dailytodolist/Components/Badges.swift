@@ -99,7 +99,7 @@ struct ProBadge: View {
     var body: some View {
         Text("PRO")
             .font(.system(size: 9, weight: .bold))
-            .foregroundStyle(Color.brandBlack)
+            .foregroundStyle(Color.onAccent)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(

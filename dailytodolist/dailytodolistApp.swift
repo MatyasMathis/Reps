@@ -33,6 +33,10 @@ struct RepsApp: App {
     @State private var showSyncActivatedAlert = false
     @ObservedObject private var store = StoreKitService.shared
 
+    /// Dark mode preference — defaults to true (dark mode on first launch).
+    /// Changing this value instantly re-applies the color scheme app-wide.
+    @AppStorage("isDarkMode") private var isDarkMode: Bool = true
+
     init() {
         // Check both the local cache and the iCloud KV store so that a Pro purchase
         // made on another device is recognised here without requiring a re-purchase.
@@ -99,6 +103,7 @@ struct RepsApp: App {
                 }
             }
         }
+        .preferredColorScheme(isDarkMode ? .dark : .light)
         .modelContainer(container)
     }
 

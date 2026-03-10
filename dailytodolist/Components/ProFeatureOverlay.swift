@@ -99,7 +99,7 @@ struct ProFeatureOverlay<Content: View>: View {
                                 .font(.system(size: Typography.bodySize, weight: .bold))
                         }
                     }
-                    .foregroundStyle(Color.brandBlack)
+                    .foregroundStyle(Color.onAccent)
                     .frame(maxWidth: 280)
                     .frame(height: ComponentSize.buttonHeight)
                     .background(Color.recoveryGreen)

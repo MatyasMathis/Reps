@@ -9,14 +9,34 @@ import SwiftUI
 import SwiftData
 
 extension Color {
-    // MARK: - Backgrounds
-    static let widgetBrandBlack = Color(hex: "0A0A0A")
-    static let widgetDarkGray1 = Color(hex: "1A1A1A")
-    static let widgetDarkGray2 = Color(hex: "2A2A2A")
+    // MARK: - Backgrounds (adaptive — follow system dark/light mode)
+    static let widgetBrandBlack = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.039, green: 0.039, blue: 0.039, alpha: 1) // #0A0A0A
+            : UIColor(red: 0.949, green: 0.949, blue: 0.969, alpha: 1) // #F2F2F7
+    })
+    static let widgetDarkGray1 = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.102, green: 0.102, blue: 0.102, alpha: 1) // #1A1A1A
+            : UIColor(red: 1, green: 1, blue: 1, alpha: 1)             // #FFFFFF
+    })
+    static let widgetDarkGray2 = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.165, green: 0.165, blue: 0.165, alpha: 1) // #2A2A2A
+            : UIColor(red: 0.898, green: 0.898, blue: 0.918, alpha: 1) // #E5E5EA
+    })
 
-    // MARK: - Text
-    static let widgetPureWhite = Color(hex: "FFFFFF")
-    static let widgetMediumGray = Color(hex: "808080")
+    // MARK: - Text (adaptive)
+    static let widgetPureWhite = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 1, green: 1, blue: 1, alpha: 1)             // #FFFFFF
+            : UIColor(red: 0, green: 0, blue: 0, alpha: 1)             // #000000
+    })
+    static let widgetMediumGray = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.502, green: 0.502, blue: 0.502, alpha: 1) // #808080
+            : UIColor(red: 0.557, green: 0.557, blue: 0.576, alpha: 1) // #8E8E93
+    })
 
     // MARK: - Accents
     static let widgetRecoveryGreen = Color(hex: "2DD881")
