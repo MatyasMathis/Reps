@@ -35,7 +35,8 @@ struct RepsApp: App {
 
     /// Dark mode preference — defaults to true (dark mode on first launch).
     /// Changing this value instantly re-applies the color scheme app-wide.
-    @AppStorage("isDarkMode") private var isDarkMode: Bool = true
+    @AppStorage("isDarkMode", store: UserDefaults(suiteName: "group.com.mathis.reps"))
+    private var isDarkMode: Bool = true
 
     init() {
         // Check both the local cache and the iCloud KV store so that a Pro purchase

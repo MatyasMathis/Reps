@@ -22,7 +22,8 @@ struct SettingsView: View {
     @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = false
     @AppStorage("notificationHour") private var notificationHour: Int = 8
     @AppStorage("notificationMinute") private var notificationMinute: Int = 0
-    @AppStorage("isDarkMode") private var isDarkMode: Bool = true
+    @AppStorage("isDarkMode", store: UserDefaults(suiteName: "group.com.mathis.reps"))
+    private var isDarkMode: Bool = true
 
     // MARK: - Store
 

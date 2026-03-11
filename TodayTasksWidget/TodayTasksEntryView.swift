@@ -13,7 +13,18 @@ struct TodayTasksEntryView: View {
 
     @Environment(\.widgetFamily) var family
 
+    // Read the user's theme preference from the shared App Group store so the
+    // widget respects the in-app dark/light toggle rather than the system setting.
+    @AppStorage("isDarkMode", store: UserDefaults(suiteName: "group.com.mathis.reps"))
+    private var isDarkMode: Bool = true
+
     var body: some View {
+        content
+            .preferredColorScheme(isDarkMode ? .dark : .light)
+    }
+
+    @ViewBuilder
+    private var content: some View {
         switch family {
         case .systemSmall:
             SmallWidgetView(entry: entry)
