@@ -13,13 +13,15 @@ struct WidgetTaskRow: View {
     let task: WidgetTask
     let compact: Bool
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         HStack(spacing: 10) {
             // Interactive checkbox button
             Button(intent: ToggleTaskIntent(taskId: task.id.uuidString)) {
                 ZStack {
                     Circle()
-                        .stroke(task.isCompletedToday ? Color.widgetRecoveryGreen : Color.widgetMediumGray, lineWidth: 2)
+                        .stroke(task.isCompletedToday ? Color.widgetRecoveryGreen : Color.widgetMediumGray(colorScheme), lineWidth: 2)
                         .frame(width: compact ? 18 : 22, height: compact ? 18 : 22)
 
                     if task.isCompletedToday {
@@ -29,7 +31,7 @@ struct WidgetTaskRow: View {
 
                         Image(systemName: "checkmark")
                             .font(.system(size: compact ? 10 : 12, weight: .bold))
-                            .foregroundStyle(Color.widgetPureWhite)
+                            .foregroundStyle(Color.widgetPureWhite(colorScheme))
                     }
                 }
             }
@@ -38,8 +40,8 @@ struct WidgetTaskRow: View {
             // Task title
             Text(task.title)
                 .font(.system(size: compact ? 14 : 16, weight: .medium))
-                .foregroundStyle(task.isCompletedToday ? Color.widgetPureWhite.opacity(0.6) : Color.widgetPureWhite)
-                .strikethrough(task.isCompletedToday, color: Color.widgetPureWhite.opacity(0.4))
+                .foregroundStyle(task.isCompletedToday ? Color.widgetPureWhite(colorScheme).opacity(0.6) : Color.widgetPureWhite(colorScheme))
+                .strikethrough(task.isCompletedToday, color: Color.widgetPureWhite(colorScheme).opacity(0.4))
                 .lineLimit(1)
 
             Spacer()
@@ -59,7 +61,7 @@ struct WidgetTaskRow: View {
         }
         .padding(.horizontal, compact ? 10 : 12)
         .padding(.vertical, compact ? 8 : 10)
-        .background(Color.widgetDarkGray2)
+        .background(Color.widgetDarkGray2(colorScheme))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .opacity(task.isCompletedToday ? 0.7 : 1.0)
     }

@@ -11,6 +11,8 @@ import WidgetKit
 struct MediumWidgetView: View {
     let entry: TaskEntry
 
+    @Environment(\.colorScheme) private var colorScheme
+
     private var percentage: Double {
         guard entry.totalCount > 0 else { return 0 }
         return Double(entry.completedCount) / Double(entry.totalCount)
@@ -26,14 +28,14 @@ struct MediumWidgetView: View {
             HStack {
                 Text("DAILY PROGRESS")
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Color.widgetMediumGray)
+                    .foregroundStyle(Color.widgetMediumGray(colorScheme))
 
 
                 Spacer()
 
                 Text("\(entry.completedCount)/\(entry.totalCount)")
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(Color.widgetPureWhite)
+                    .foregroundStyle(Color.widgetPureWhite(colorScheme))
 
                 Text("\(Int(percentage * 100))%")
                     .font(.system(size: 17, weight: .bold))
@@ -44,7 +46,7 @@ struct MediumWidgetView: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.widgetDarkGray2)
+                        .fill(Color.widgetDarkGray2(colorScheme))
 
                     RoundedRectangle(cornerRadius: 4)
                         .fill(Color.widgetRecoveryGreen)
@@ -59,7 +61,7 @@ struct MediumWidgetView: View {
                     Spacer()
                     Text("All done for today!")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.widgetMediumGray)
+                        .foregroundStyle(Color.widgetMediumGray(colorScheme))
                     Spacer()
                 }
                 .padding(.top, 8)

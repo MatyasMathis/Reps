@@ -11,6 +11,8 @@ import WidgetKit
 struct SmallWidgetView: View {
     let entry: TaskEntry
 
+    @Environment(\.colorScheme) private var colorScheme
+
     private var percentage: Double {
         guard entry.totalCount > 0 else { return 0 }
         return Double(entry.completedCount) / Double(entry.totalCount)
@@ -21,7 +23,7 @@ struct SmallWidgetView: View {
             HStack {
                 Text("DAILY PROGRESS")
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Color.widgetMediumGray)
+                    .foregroundStyle(Color.widgetMediumGray(colorScheme))
                 Spacer()
             }
 
@@ -30,7 +32,7 @@ struct SmallWidgetView: View {
             // Circular progress
             ZStack {
                 Circle()
-                    .stroke(Color.widgetDarkGray2, lineWidth: 6)
+                    .stroke(Color.widgetDarkGray2(colorScheme), lineWidth: 6)
 
                 Circle()
                     .trim(from: 0, to: percentage)
@@ -43,7 +45,7 @@ struct SmallWidgetView: View {
                 VStack(spacing: 0) {
                     Text("\(entry.completedCount)/\(entry.totalCount)")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(Color.widgetPureWhite)
+                        .foregroundStyle(Color.widgetPureWhite(colorScheme))
                 }
             }
             .frame(width: 70, height: 70)

@@ -11,6 +11,8 @@ import WidgetKit
 struct LargeWidgetView: View {
     let entry: TaskEntry
 
+    @Environment(\.colorScheme) private var colorScheme
+
     private var percentage: Double {
         guard entry.totalCount > 0 else { return 0 }
         return Double(entry.completedCount) / Double(entry.totalCount)
@@ -31,7 +33,7 @@ struct LargeWidgetView: View {
                 HStack {
                     Text("DAILY PROGRESS")
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(Color.widgetMediumGray)
+                        .foregroundStyle(Color.widgetMediumGray(colorScheme))
 
 
                     Spacer()
@@ -40,7 +42,7 @@ struct LargeWidgetView: View {
                 HStack {
                     Text("\(entry.completedCount)/\(entry.totalCount) completed")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(Color.widgetPureWhite)
+                        .foregroundStyle(Color.widgetPureWhite(colorScheme))
 
                     Spacer()
 
@@ -53,7 +55,7 @@ struct LargeWidgetView: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color.widgetDarkGray2)
+                            .fill(Color.widgetDarkGray2(colorScheme))
 
                         RoundedRectangle(cornerRadius: 3)
                             .fill(Color.widgetRecoveryGreen)
@@ -63,7 +65,7 @@ struct LargeWidgetView: View {
                 .frame(height: 6)
             }
             .padding(10)
-            .background(Color.widgetDarkGray1)
+            .background(Color.widgetDarkGray1(colorScheme))
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             // Task list
@@ -77,7 +79,7 @@ struct LargeWidgetView: View {
                             .foregroundStyle(Color.widgetRecoveryGreen)
                         Text("All done for today!")
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(Color.widgetMediumGray)
+                            .foregroundStyle(Color.widgetMediumGray(colorScheme))
                     }
                     Spacer()
                 }
@@ -92,7 +94,7 @@ struct LargeWidgetView: View {
                 if remainingCount > 0 {
                     Text("+ \(remainingCount) more task\(remainingCount == 1 ? "" : "s")")
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Color.widgetMediumGray)
+                        .foregroundStyle(Color.widgetMediumGray(colorScheme))
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.top, 2)
                 }
