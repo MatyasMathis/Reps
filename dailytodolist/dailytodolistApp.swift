@@ -14,6 +14,7 @@
 import SwiftUI
 import SwiftData
 import UserNotifications
+import WidgetKit
 
 /// Notification posted when the app should navigate to the Tasks tab
 extension Notification.Name {
@@ -62,6 +63,10 @@ struct RepsApp: App {
                 MainTabView()
                     .onOpenURL { url in
                         handleDeepLink(url)
+                    }
+                    .onChange(of: isDarkMode) { _, _ in
+                        // Force the widget to re-render immediately with the new theme.
+                        WidgetCenter.shared.reloadAllTimelines()
                     }
                     .onChange(of: store.isProUnlocked) { _, newValue in
                         // When Pro is purchased mid-session, CloudKit isn't active yet

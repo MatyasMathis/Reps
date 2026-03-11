@@ -20,6 +20,11 @@ struct TodayTasksEntryView: View {
 
     var body: some View {
         content
+            .containerBackground(for: .widget) {
+                // Directly use the stored flag so the background color
+                // matches the in-app dark/light preference.
+                isDarkMode ? Color(hex: "0A0A0A") : Color(hex: "F2F2F7")
+            }
             .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 
