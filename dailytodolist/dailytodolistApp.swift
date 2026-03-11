@@ -102,8 +102,8 @@ struct RepsApp: App {
                     NotificationService.shared.scheduleReminder(hour: hour, minute: minute)
                 }
             }
+            .preferredColorScheme(isDarkMode ? .dark : .light)
         }
-        .preferredColorScheme(isDarkMode ? .dark : .light)
         .modelContainer(container)
     }
 
