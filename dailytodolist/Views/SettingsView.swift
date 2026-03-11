@@ -94,6 +94,7 @@ struct SettingsView: View {
             .toolbarBackground(Color.brandBlack, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
         }
+        .preferredColorScheme(isDarkMode ? .dark : .light)
         .presentationBackground(Color.brandBlack)
     }
 
