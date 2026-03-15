@@ -14,6 +14,7 @@ struct SettingsView: View {
     // MARK: - Environment
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     // MARK: - Persisted Preferences
 
@@ -33,6 +34,10 @@ struct SettingsView: View {
     @State private var showTermsOfService = false
     @State private var showPaywall = false
     @State private var showNotificationDeniedAlert = false
+    #if DEBUG
+    @State private var showSeedConfirmation = false
+    @State private var seedErrorMessage: String?
+    #endif
 
     // MARK: - Computed
 
@@ -451,34 +456,94 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             sectionLabel("DEBUG")
 
-            Button {
-                store.debugTogglePro()
-            } label: {
-                HStack {
-                    Image(systemName: "ant.fill")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color.strainRed)
-                        .frame(width: 24)
+            VStack(spacing: 0) {
+                // Toggle Pro
+                Button {
+                    store.debugTogglePro()
+                } label: {
+                    HStack {
+                        Image(systemName: "ant.fill")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(Color.strainRed)
+                            .frame(width: 24)
 
-                    Text("Toggle Pro Status")
-                        .font(.system(size: Typography.bodySize, weight: .medium))
-                        .foregroundStyle(Color.pureWhite)
+                        Text("Toggle Pro Status")
+                            .font(.system(size: Typography.bodySize, weight: .medium))
+                            .foregroundStyle(Color.pureWhite)
 
-                    Spacer()
+                        Spacer()
 
-                    Text(store.isProUnlocked ? "ON" : "OFF")
-                        .font(.system(size: Typography.captionSize, weight: .bold))
-                        .foregroundStyle(store.isProUnlocked ? Color.recoveryGreen : Color.mediumGray)
+                        Text(store.isProUnlocked ? "ON" : "OFF")
+                            .font(.system(size: Typography.captionSize, weight: .bold))
+                            .foregroundStyle(store.isProUnlocked ? Color.recoveryGreen : Color.mediumGray)
+                    }
+                    .padding(Spacing.lg)
                 }
-                .padding(Spacing.lg)
-                .background(Color.darkGray1)
-                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
-                .overlay(
-                    RoundedRectangle(cornerRadius: CornerRadius.standard)
-                        .strokeBorder(Color.strainRed.opacity(0.3), lineWidth: 1)
-                )
+                .buttonStyle(.plain)
+
+                Divider().background(Color.darkGray2)
+
+                // Load Demo Data
+                Button {
+                    showSeedConfirmation = true
+                } label: {
+                    HStack {
+                        Image(systemName: "photo.on.rectangle.angled")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(Color.strainRed)
+                            .frame(width: 24)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Load Demo Data")
+                                .font(.system(size: Typography.bodySize, weight: .medium))
+                                .foregroundStyle(Color.pureWhite)
+
+                            Text("Replaces all data with screenshot-ready content")
+                                .font(.system(size: Typography.captionSize, weight: .regular))
+                                .foregroundStyle(Color.mediumGray)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(Color.mediumGray)
+                    }
+                    .padding(Spacing.lg)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
+            .background(Color.darkGray1)
+            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+            .overlay(
+                RoundedRectangle(cornerRadius: CornerRadius.standard)
+                    .strokeBorder(Color.strainRed.opacity(0.3), lineWidth: 1)
+            )
+
+            if let error = seedErrorMessage {
+                Text(error)
+                    .font(.system(size: Typography.captionSize))
+                    .foregroundStyle(Color.strainRed)
+                    .padding(.horizontal, Spacing.sm)
+            }
+        }
+        .confirmationDialog(
+            "Load Demo Data?",
+            isPresented: $showSeedConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Replace All Data", role: .destructive) {
+                do {
+                    try SeedDataService(modelContext: modelContext).loadDemoData()
+                    seedErrorMessage = nil
+                    dismiss()
+                } catch {
+                    seedErrorMessage = "Seed failed: \(error.localizedDescription)"
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will delete all your current tasks and history, then insert 9 realistic tasks with a 47-day streak. Use only for screenshots.")
         }
     }
     #endif
