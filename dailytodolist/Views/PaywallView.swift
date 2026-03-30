@@ -163,12 +163,19 @@ struct PaywallView: View {
     private var purchaseSection: some View {
         VStack(spacing: Spacing.sm) {
             Button {
-                Task { await store.purchase() }
+                if store.productLoadFailed {
+                    Task { await store.loadProducts() }
+                } else {
+                    Task { await store.purchase() }
+                }
             } label: {
                 HStack(spacing: Spacing.sm) {
-                    if store.purchaseState == .purchasing {
+                    if store.isLoadingProducts || store.purchaseState == .purchasing {
                         ProgressView()
                             .tint(Color.brandBlack)
+                    } else if store.productLoadFailed {
+                        Text("Tap to Retry")
+                            .font(.system(size: Typography.bodySize, weight: .bold))
                     } else {
                         Text("Unlock REPS Pro")
                             .font(.system(size: Typography.bodySize, weight: .bold))
@@ -182,10 +189,10 @@ struct PaywallView: View {
                 .foregroundStyle(Color.brandBlack)
                 .frame(maxWidth: .infinity)
                 .frame(height: ComponentSize.buttonHeight)
-                .background(Color.recoveryGreen)
+                .background(store.productLoadFailed ? Color.mediumGray : Color.recoveryGreen)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
             }
-            .disabled(store.purchaseState == .purchasing || store.proProduct == nil)
+            .disabled(store.isLoadingProducts || store.purchaseState == .purchasing)
 
             Text("One-time purchase. No subscription.")
                 .font(.system(size: Typography.captionSize, weight: .medium))

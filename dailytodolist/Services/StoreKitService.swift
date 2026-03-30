@@ -23,6 +23,8 @@ final class StoreKitService: ObservableObject {
     @Published private(set) var isProUnlocked: Bool = false
     @Published private(set) var proProduct: Product?
     @Published private(set) var purchaseState: PurchaseState = .idle
+    @Published private(set) var isLoadingProducts: Bool = true
+    @Published private(set) var productLoadFailed: Bool = false
 
     enum PurchaseState: Equatable {
         case idle
@@ -63,12 +65,16 @@ final class StoreKitService: ObservableObject {
     // MARK: - Load Products
 
     func loadProducts() async {
+        isLoadingProducts = true
+        productLoadFailed = false
         do {
             let products = try await Product.products(for: [Self.proProductID])
             proProduct = products.first
+            productLoadFailed = proProduct == nil
         } catch {
-            // Product loading failed — will show unavailable state in paywall
+            productLoadFailed = true
         }
+        isLoadingProducts = false
     }
 
     // MARK: - Purchase
