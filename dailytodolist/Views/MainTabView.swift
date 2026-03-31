@@ -266,7 +266,7 @@ struct MainTabView: View {
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
-            .sheet(isPresented: $showYearInPixels) {
+            .fullScreenCover(isPresented: $showYearInPixels) {
                 YearInPixelsView()
             }
             .sheet(isPresented: $showStats) {

@@ -371,55 +371,56 @@ struct YearInPixelsView: View {
     }
 
     private var pixelGrid: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Day header
-            HStack(spacing: 0) {
-                Color.clear.frame(width: 32, height: 14)
-                ForEach(1...31, id: \.self) { day in
-                    if day == 1 || day % 5 == 0 {
-                        Text("\(day)")
-                            .font(.system(size: 8, weight: .medium))
-                            .foregroundStyle(Color.pureWhite.opacity(0.25))
-                            .frame(width: cellSize + cellSpacing, height: 14)
-                    } else {
-                        Color.clear.frame(width: cellSize + cellSpacing, height: 14)
-                    }
-                }
-            }
-
-            // Month rows
-            ForEach(Array(monthRows.enumerated()), id: \.offset) { monthIndex, days in
-                HStack(spacing: 0) {
-                    Text(monthNames[monthIndex])
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(Color.pureWhite.opacity(0.3))
-                        .frame(width: 32, alignment: .trailing)
-                        .padding(.trailing, Spacing.xs)
-
-                    ForEach(Array(days.enumerated()), id: \.offset) { _, day in
-                        pixelCell(for: day)
-                            .padding(.trailing, cellSpacing)
-                            .padding(.bottom, cellSpacing)
-                    }
-
-                    if days.count < 31 {
-                        ForEach(0..<(31 - days.count), id: \.self) { _ in
-                            Color.clear.frame(width: cellSize, height: cellSize)
-                                .padding(.trailing, cellSpacing).padding(.bottom, cellSpacing)
+        ScrollView(.horizontal, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Day header
+                HStack(spacing: cellSpacing) {
+                    Color.clear.frame(width: 28, height: 12)
+                    ForEach(1...31, id: \.self) { day in
+                        if day == 1 || day % 5 == 0 {
+                            Text("\(day)")
+                                .font(.system(size: 7, weight: .medium))
+                                .foregroundStyle(Color.pureWhite.opacity(0.25))
+                                .frame(width: cellSize, height: 12)
+                        } else {
+                            Color.clear.frame(width: cellSize, height: 12)
                         }
                     }
+                }
+
+                // Month rows
+                ForEach(Array(monthRows.enumerated()), id: \.offset) { monthIndex, days in
+                    HStack(spacing: cellSpacing) {
+                        Text(monthNames[monthIndex])
+                            .font(.system(size: 8, weight: .semibold))
+                            .foregroundStyle(Color.pureWhite.opacity(0.3))
+                            .frame(width: 28, alignment: .trailing)
+
+                        ForEach(Array(days.enumerated()), id: \.offset) { _, day in
+                            pixelCell(for: day)
+                        }
+
+                        if days.count < 31 {
+                            ForEach(0..<(31 - days.count), id: \.self) { _ in
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(Color.clear)
+                                    .frame(width: cellSize, height: cellSize)
+                            }
+                        }
+                    }
+                    .padding(.top, cellSpacing)
                 }
             }
         }
     }
 
     private func pixelCell(for day: DayInfo) -> some View {
-        RoundedRectangle(cornerRadius: 3)
+        RoundedRectangle(cornerRadius: 2)
             .fill(pixelColor(for: day))
             .frame(width: cellSize, height: cellSize)
             .overlay {
                 if day.isToday {
-                    RoundedRectangle(cornerRadius: 3)
+                    RoundedRectangle(cornerRadius: 2)
                         .strokeBorder(Color.pureWhite.opacity(0.8), lineWidth: 1)
                 }
             }
@@ -435,15 +436,16 @@ struct YearInPixelsView: View {
     }
 
     private func pixelColor(for day: DayInfo) -> Color {
-        if day.isEmpty || day.isFuture { return Color.clear }
+        if day.isEmpty { return Color.clear }
+        if day.isFuture { return Color(hex: "1E1E1E") }
 
         let count = day.completionCount
-        if count == 0 { return Color(hex: "222222") }
+        if count == 0 { return Color(hex: "252525") }
 
         switch count {
-        case 1: return Color.recoveryGreen.opacity(0.25)
-        case 2: return Color.recoveryGreen.opacity(0.5)
-        case 3...4: return Color.recoveryGreen.opacity(0.75)
+        case 1: return Color.recoveryGreen.opacity(0.3)
+        case 2: return Color.recoveryGreen.opacity(0.55)
+        case 3...4: return Color.recoveryGreen.opacity(0.8)
         default: return Color.recoveryGreen
         }
     }

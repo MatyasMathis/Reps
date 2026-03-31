@@ -53,30 +53,36 @@ struct ProFeatureOverlay<Content: View>: View {
     // MARK: - Unlock Card
 
     private var unlockCard: some View {
-        VStack(spacing: Spacing.lg) {
+        VStack(spacing: Spacing.xl) {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Color.recoveryGreen.opacity(0.15))
-                    .frame(width: 64, height: 64)
+                    .fill(Color.recoveryGreen.opacity(0.18))
+                    .frame(width: 72, height: 72)
 
                 Image(systemName: icon)
-                    .font(.system(size: 28, weight: .medium))
+                    .font(.system(size: 30, weight: .semibold))
                     .foregroundStyle(Color.recoveryGreen)
             }
 
             // Title + subtitle
-            VStack(spacing: Spacing.xs) {
+            VStack(spacing: Spacing.sm) {
                 HStack(spacing: Spacing.sm) {
                     Text(title)
                         .font(.system(size: Typography.h3Size, weight: .bold))
                         .foregroundStyle(Color.pureWhite)
 
-                    ProBadge()
+                    Text("PRO")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(Color.mediumGray)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color.darkGray2)
+                        .clipShape(Capsule())
                 }
 
                 Text(subtitle)
-                    .font(.system(size: Typography.bodySize, weight: .medium))
+                    .font(.system(size: Typography.bodySize, weight: .regular))
                     .foregroundStyle(Color.mediumGray)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -92,37 +98,33 @@ struct ProFeatureOverlay<Content: View>: View {
                     HStack(spacing: Spacing.sm) {
                         Image(systemName: "crown.fill")
                             .font(.system(size: 14, weight: .bold))
-                        Text("Unlock REPS Pro")
-                            .font(.system(size: Typography.bodySize, weight: .bold))
                         if let product = store.proProduct {
-                            Text("— \(product.displayPrice)")
+                            Text("Unlock REPS Pro — \(product.displayPrice)")
+                                .font(.system(size: Typography.bodySize, weight: .bold))
+                        } else {
+                            Text("Unlock REPS Pro")
                                 .font(.system(size: Typography.bodySize, weight: .bold))
                         }
                     }
                     .foregroundStyle(Color.brandBlack)
-                    .frame(maxWidth: 280)
+                    .frame(maxWidth: .infinity)
                     .frame(height: ComponentSize.buttonHeight)
                     .background(Color.recoveryGreen)
-                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
                 }
 
                 Text("One-time purchase. No subscription.")
-                    .font(.system(size: Typography.captionSize, weight: .medium))
-                    .foregroundStyle(Color.mediumGray)
+                    .font(.system(size: Typography.captionSize, weight: .regular))
+                    .foregroundStyle(Color.mediumGray.opacity(0.7))
             }
         }
         .padding(.vertical, Spacing.xxl)
         .padding(.horizontal, Spacing.xl)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.large)
-                .fill(.ultraThinMaterial)
-                .environment(\.colorScheme, .dark)
+                .fill(Color.darkGray1)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: CornerRadius.large)
-                .strokeBorder(Color.recoveryGreen.opacity(0.15), lineWidth: 1)
-        )
-        .padding(.horizontal, Spacing.xl)
+        .padding(.horizontal, Spacing.lg)
         .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()
         }
