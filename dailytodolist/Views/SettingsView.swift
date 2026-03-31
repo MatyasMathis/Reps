@@ -52,15 +52,13 @@ struct SettingsView: View {
                 ScrollView {
                     VStack(spacing: Spacing.xxl) {
                         appInfoSection
-                        proStatusSection
-                        cloudSyncSection
-                        notificationsSection
-                        generalSection
-                        dataSection
+                        memberStatusSection
+                        preferencesSection
                         aboutSection
                         #if DEBUG
                         debugSection
                         #endif
+                        dangerZoneSection
                         footerSection
                     }
                     .padding(.horizontal, Spacing.lg)
@@ -71,8 +69,9 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Settings")
-                        .font(.system(size: Typography.h3Size, weight: .bold))
+                    Text("SETTINGS")
+                        .font(.system(size: 17, weight: .black))
+                        .italic()
                         .foregroundStyle(Color.pureWhite)
                 }
 
@@ -81,11 +80,11 @@ struct SettingsView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(Color.pureWhite)
-                            .frame(width: 34, height: 34)
+                            .frame(width: 36, height: 36)
                             .background(Color.darkGray1)
-                            .clipShape(Circle())
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
             }
@@ -98,55 +97,58 @@ struct SettingsView: View {
     // MARK: - App Info Section
 
     private var appInfoSection: some View {
-        VStack(spacing: Spacing.sm) {
+        VStack(spacing: 6) {
             Text("REPS")
-                .font(.system(size: 36, weight: .black))
+                .font(.system(size: 48, weight: .black))
                 .italic()
-                .foregroundStyle(Color.pureWhite)
+                .foregroundStyle(Color.recoveryGreen)
 
-            Text("Lock in.")
-                .font(.system(size: Typography.bodySize, weight: .medium))
-                .foregroundStyle(Color.mediumGray)
+            Text("LOCKED IN.")
+                .font(.system(size: 13, weight: .bold))
+                .tracking(3)
+                .foregroundStyle(Color.pureWhite.opacity(0.4))
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, Spacing.xl)
+        .padding(.vertical, Spacing.xxl)
     }
 
-    // MARK: - PRO Status Section
+    // MARK: - Member Status Section
 
-    private var proStatusSection: some View {
+    private var memberStatusSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            sectionLabel("STATUS")
+            sectionLabel("MEMBER STATUS")
 
             Button {
-                if !store.isProUnlocked {
-                    showPaywall = true
-                }
+                if !store.isProUnlocked { showPaywall = true }
             } label: {
                 HStack(spacing: Spacing.md) {
-                    // Crown icon in amber circle
-                    ZStack {
-                        Circle()
-                            .fill(Color(hex: "7A5200"))
-                            .frame(width: 40, height: 40)
-                        Image(systemName: "crown.fill")
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundStyle(Color(hex: "FFB800"))
-                    }
+                    settingsIcon("crown.fill", bg: Color(hex: "3D2800"), fg: Color(hex: "FFB800"))
 
-                    Text(store.isProUnlocked ? "REPS Pro" : "Free Plan")
-                        .font(.system(size: Typography.bodySize, weight: .semibold))
-                        .foregroundStyle(Color.pureWhite)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(store.isProUnlocked ? "REPS Pro" : "Free Plan")
+                            .font(.system(size: Typography.bodySize, weight: .bold))
+                            .italic()
+                            .foregroundStyle(Color.pureWhite)
+                        Text(store.isProUnlocked ? "PREMIUM TIER" : "FREE TIER")
+                            .font(.system(size: 11, weight: .bold))
+                            .tracking(0.8)
+                            .foregroundStyle(Color.pureWhite.opacity(0.4))
+                    }
 
                     Spacer()
 
                     Text(store.isProUnlocked ? "ACTIVE" : "UPGRADE")
-                        .font(.system(size: Typography.captionSize, weight: .bold))
-                        .foregroundStyle(store.isProUnlocked ? Color.brandBlack : Color.brandBlack)
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.vertical, Spacing.xs + 2)
-                        .background(Color.recoveryGreen)
-                        .clipShape(Capsule())
+                        .font(.system(size: 12, weight: .black))
+                        .italic()
+                        .foregroundStyle(Color.recoveryGreen)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(Color.recoveryGreen.opacity(0.15))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .strokeBorder(Color.recoveryGreen.opacity(0.4), lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
                 }
                 .padding(Spacing.lg)
                 .background(Color.darkGray1)
@@ -161,83 +163,55 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Cloud Sync Section
+    // MARK: - Preferences Section (iCloud + Notifications + General)
 
-    @ViewBuilder
-    private var cloudSyncSection: some View {
-        if store.isProUnlocked {
-            VStack(alignment: .leading, spacing: Spacing.sm) {
-                sectionLabel("CLOUD SYNC")
-
-                let isActive = UserDefaults.standard.bool(forKey: "cloudKitActiveOnLaunch")
-
-                HStack(spacing: Spacing.md) {
-                    // iCloud icon in blue circle
-                    ZStack {
-                        Circle()
-                            .fill(Color(hex: "1A3A5C"))
-                            .frame(width: 40, height: 40)
-                        Image(systemName: "icloud.fill")
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundStyle(Color(hex: "4A90E2"))
-                    }
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("iCloud Sync")
-                            .font(.system(size: Typography.bodySize, weight: .semibold))
-                            .foregroundStyle(Color.pureWhite)
-
-                        Text("Sync across all devices")
-                            .font(.system(size: Typography.captionSize, weight: .regular))
-                            .foregroundStyle(Color.mediumGray)
-                    }
-
-                    Spacer()
-
-                    HStack(spacing: Spacing.xs) {
-                        Circle()
-                            .fill(isActive ? Color.recoveryGreen : Color.mediumGray)
-                            .frame(width: 7, height: 7)
-
-                        Text(isActive ? "ACTIVE" : "Restart required")
-                            .font(.system(size: Typography.captionSize, weight: .semibold))
-                            .foregroundStyle(isActive ? Color.recoveryGreen : Color.mediumGray)
-                    }
-                }
-                .padding(Spacing.lg)
-                .background(Color.darkGray1)
-                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
-            }
-        }
-    }
-
-    // MARK: - Notifications Section
-
-    private var notificationsSection: some View {
+    private var preferencesSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            sectionLabel("NOTIFICATIONS")
+            sectionLabel("PREFERENCES")
 
             VStack(spacing: 0) {
-                // Daily reminder toggle
-                HStack(spacing: Spacing.md) {
-                    // Bell icon in green circle
-                    ZStack {
-                        Circle()
-                            .fill(Color(hex: "0D3322"))
-                            .frame(width: 40, height: 40)
-                        Image(systemName: "bell.fill")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(Color.recoveryGreen)
+                // iCloud Sync
+                if store.isProUnlocked {
+                    let isActive = UserDefaults.standard.bool(forKey: "cloudKitActiveOnLaunch")
+                    HStack(spacing: Spacing.md) {
+                        settingsIcon("icloud.fill", bg: Color(hex: "1A2E50"), fg: Color(hex: "4A90E2"))
+
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("iCloud Sync")
+                                .font(.system(size: Typography.bodySize, weight: .bold))
+                                .italic()
+                                .foregroundStyle(Color.pureWhite)
+                            Text("MULTI-DEVICE")
+                                .font(.system(size: 11, weight: .bold))
+                                .tracking(0.8)
+                                .foregroundStyle(Color.pureWhite.opacity(0.4))
+                        }
+
+                        Spacer()
+
+                        Toggle("", isOn: .constant(isActive))
+                            .labelsHidden()
+                            .tint(Color.recoveryGreen)
+                            .disabled(true)
                     }
+                    .padding(Spacing.lg)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Daily Reminder")
-                            .font(.system(size: Typography.bodySize, weight: .semibold))
+                    settingsDivider
+                }
+
+                // Nudges
+                HStack(spacing: Spacing.md) {
+                    settingsIcon("bell.fill", bg: Color(hex: "0C2E1A"), fg: Color.recoveryGreen)
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Nudges")
+                            .font(.system(size: Typography.bodySize, weight: .bold))
+                            .italic()
                             .foregroundStyle(Color.pureWhite)
-
-                        Text("Get a nudge to complete tasks")
-                            .font(.system(size: Typography.captionSize, weight: .regular))
-                            .foregroundStyle(Color.mediumGray)
+                        Text("DAILY REMINDERS")
+                            .font(.system(size: 11, weight: .bold))
+                            .tracking(0.8)
+                            .foregroundStyle(Color.pureWhite.opacity(0.4))
                     }
 
                     Spacer()
@@ -270,63 +244,63 @@ struct SettingsView: View {
                 }
                 .padding(Spacing.lg)
 
-                // Time picker — only visible when notifications are enabled
-                if notificationsEnabled {
-                    Divider()
-                        .background(Color.darkGray2)
+                settingsDivider
 
-                    HStack(spacing: Spacing.md) {
-                        Image(systemName: "clock")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundStyle(Color.recoveryGreen)
-                            .frame(width: 24)
+                // Completion Sound
+                HStack(spacing: Spacing.md) {
+                    settingsIcon("music.note", bg: Color(hex: "22153A"), fg: Color(hex: "9B7FFF"))
 
-                        Text("Reminder Time")
-                            .font(.system(size: Typography.bodySize, weight: .medium))
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Sound")
+                            .font(.system(size: Typography.bodySize, weight: .bold))
+                            .italic()
                             .foregroundStyle(Color.pureWhite)
-
-                        Spacer()
-
-                        DatePicker(
-                            "",
-                            selection: Binding(
-                                get: {
-                                    Calendar.current.date(
-                                        bySettingHour: notificationHour,
-                                        minute: notificationMinute,
-                                        second: 0,
-                                        of: Date()
-                                    ) ?? Date()
-                                },
-                                set: { newDate in
-                                    let components = Calendar.current.dateComponents([.hour, .minute], from: newDate)
-                                    notificationHour = components.hour ?? 8
-                                    notificationMinute = components.minute ?? 0
-                                    NotificationService.shared.scheduleReminder(
-                                        hour: notificationHour,
-                                        minute: notificationMinute
-                                    )
-                                }
-                            ),
-                            displayedComponents: .hourAndMinute
-                        )
-                        .labelsHidden()
-                        .colorScheme(.dark)
+                        Text("COMPLETION FEEDBACK")
+                            .font(.system(size: 11, weight: .bold))
+                            .tracking(0.8)
+                            .foregroundStyle(Color.pureWhite.opacity(0.4))
                     }
-                    .padding(Spacing.lg)
+
+                    Spacer()
+
+                    Toggle("", isOn: $soundEnabled)
+                        .labelsHidden()
+                        .tint(Color.recoveryGreen)
                 }
+                .padding(Spacing.lg)
+
+                settingsDivider
+
+                // Haptics
+                HStack(spacing: Spacing.md) {
+                    settingsIcon("iphone.radiowaves.left.and.right", bg: Color(hex: "3A1020"), fg: Color(hex: "FF5C8A"))
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Haptics")
+                            .font(.system(size: Typography.bodySize, weight: .bold))
+                            .italic()
+                            .foregroundStyle(Color.pureWhite)
+                        Text("TACTILE RESPONSE")
+                            .font(.system(size: 11, weight: .bold))
+                            .tracking(0.8)
+                            .foregroundStyle(Color.pureWhite.opacity(0.4))
+                    }
+
+                    Spacer()
+
+                    Toggle("", isOn: $hapticFeedbackEnabled)
+                        .labelsHidden()
+                        .tint(Color.recoveryGreen)
+                }
+                .padding(Spacing.lg)
             }
             .background(Color.darkGray1)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
         }
         .task {
-            // Sync toggle with actual system permission status.
-            // Handles the case where the user disables notifications in system Settings.
             if notificationsEnabled {
                 let status = await NotificationService.shared.checkAuthorizationStatus()
-                if status == .denied {
-                    notificationsEnabled = false
-                }
+                if status == .denied { notificationsEnabled = false }
             }
         }
         .alert("Notifications Disabled", isPresented: $showNotificationDeniedAlert) {
@@ -341,65 +315,41 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - General Section
+    // MARK: - Danger Zone Section
 
-    private var generalSection: some View {
+    private var dangerZoneSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            sectionLabel("GENERAL")
-
-            VStack(spacing: 0) {
-                settingsToggleRow(
-                    icon: "music.note",
-                    iconBgColor: Color(hex: "2D1A5C"),
-                    iconColor: Color(hex: "9B7FFF"),
-                    title: "Completion Sound",
-                    subtitle: "Play sound when completing tasks",
-                    isOn: $soundEnabled
-                )
-
-                Divider()
-                    .background(Color.darkGray2)
-
-                settingsToggleRow(
-                    icon: "iphone.radiowaves.left.and.right",
-                    iconBgColor: Color(hex: "5C1A2D"),
-                    iconColor: Color(hex: "FF5C8A"),
-                    title: "Haptic Feedback",
-                    subtitle: "Vibration on interactions",
-                    isOn: $hapticFeedbackEnabled
-                )
-            }
-            .background(Color.darkGray1)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
-        }
-    }
-
-    // MARK: - Data Section
-
-    private var dataSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            sectionLabel("DATA MANAGEMENT")
+            sectionLabel("DANGER ZONE")
 
             Button {
                 Task { await store.restore() }
             } label: {
-                HStack {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color.recoveryGreen)
+                HStack(spacing: Spacing.md) {
+                    settingsIcon("arrow.clockwise", bg: Color(hex: "3A0A0A"), fg: Color(hex: "FF4444"))
 
-                    Text("Restore Purchases")
-                        .font(.system(size: Typography.bodySize, weight: .medium))
-                        .foregroundStyle(Color.pureWhite)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Restore Purchases")
+                            .font(.system(size: Typography.bodySize, weight: .bold))
+                            .italic()
+                            .foregroundStyle(Color(hex: "FF4444"))
+                        Text("RECOVER YOUR PRO ACCESS")
+                            .font(.system(size: 11, weight: .bold))
+                            .tracking(0.8)
+                            .foregroundStyle(Color(hex: "FF4444").opacity(0.5))
+                    }
 
                     Spacer()
 
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.mediumGray)
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Color(hex: "FF4444").opacity(0.5))
                 }
                 .padding(Spacing.lg)
-                .background(Color.darkGray1)
+                .background(Color(hex: "FF4444").opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: CornerRadius.standard)
+                        .strokeBorder(Color(hex: "FF4444").opacity(0.2), lineWidth: 1)
+                )
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
             }
             .buttonStyle(.plain)
@@ -413,21 +363,21 @@ struct SettingsView: View {
             sectionLabel("ABOUT")
 
             VStack(spacing: 0) {
-                aboutRow(icon: "star", title: "Rate on App Store") {
+                aboutRow(icon: "star.fill", title: "Rate on App Store") {
                     if let url = URL(string: "https://apps.apple.com/app/id6758785466?action=write-review") {
                         UIApplication.shared.open(url)
                     }
                 }
-                Divider().background(Color.darkGray2)
-                aboutRow(icon: "hand.raised", title: "Privacy Policy") {
+                settingsDivider
+                aboutRow(icon: "hand.raised.fill", title: "Privacy Policy") {
                     showPrivacyPolicy = true
                 }
-                Divider().background(Color.darkGray2)
-                aboutRow(icon: "doc.text", title: "Terms of Service") {
+                settingsDivider
+                aboutRow(icon: "doc.text.fill", title: "Terms of Service") {
                     showTermsOfService = true
                 }
-                Divider().background(Color.darkGray2)
-                aboutRow(icon: "envelope", title: "Contact / Feedback") {
+                settingsDivider
+                aboutRow(icon: "envelope.fill", title: "Contact") {
                     if let url = URL(string: "mailto:repsdevs@gmail.com?subject=REPS%20Feedback") {
                         UIApplication.shared.open(url)
                     }
@@ -505,71 +455,54 @@ struct SettingsView: View {
 
     // MARK: - Reusable Components
 
-    private func sectionLabel(_ text: String) -> some View {
-        Text(text)
-            .font(.system(size: Typography.labelSize, weight: .semibold))
-            .foregroundStyle(Color.mediumGray)
-            .tracking(0.8)
+    private var settingsDivider: some View {
+        Rectangle()
+            .fill(Color.pureWhite.opacity(0.06))
+            .frame(height: 1)
+            .padding(.leading, 60)
     }
 
-    private func settingsToggleRow(
-        icon: String,
-        iconBgColor: Color = Color(hex: "0D3322"),
-        iconColor: Color = Color.recoveryGreen,
-        title: String,
-        subtitle: String,
-        isOn: Binding<Bool>
-    ) -> some View {
-        HStack(spacing: Spacing.md) {
-            ZStack {
-                Circle()
-                    .fill(iconBgColor)
-                    .frame(width: 40, height: 40)
-                Image(systemName: icon)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(iconColor)
-            }
+    private func sectionLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 11, weight: .bold))
+            .foregroundStyle(Color.pureWhite.opacity(0.35))
+            .tracking(1.2)
+    }
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(size: Typography.bodySize, weight: .semibold))
-                    .foregroundStyle(Color.pureWhite)
-
-                Text(subtitle)
-                    .font(.system(size: Typography.captionSize, weight: .regular))
-                    .foregroundStyle(Color.mediumGray)
-            }
-
-            Spacer()
-
-            Toggle("", isOn: isOn)
-                .labelsHidden()
-                .tint(Color.recoveryGreen)
+    private func settingsIcon(_ systemName: String, bg: Color, fg: Color) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(bg)
+                .frame(width: 42, height: 42)
+            Image(systemName: systemName)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(fg)
         }
-        .padding(Spacing.lg)
     }
 
     private func aboutRow(icon: String, title: String, action: @escaping () -> Void) -> some View {
         Button {
             action()
         } label: {
-            HStack {
+            HStack(spacing: Spacing.md) {
                 Image(systemName: icon)
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundStyle(Color.mediumGray)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.pureWhite.opacity(0.4))
                     .frame(width: 24)
 
                 Text(title)
-                    .font(.system(size: Typography.bodySize, weight: .medium))
+                    .font(.system(size: Typography.bodySize, weight: .bold))
+                    .italic()
                     .foregroundStyle(Color.pureWhite)
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Color.mediumGray)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Color.pureWhite.opacity(0.2))
             }
-            .padding(Spacing.lg)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.vertical, 14)
         }
         .buttonStyle(.plain)
     }

@@ -44,49 +44,40 @@ struct TaskRow: View {
 
     var body: some View {
         HStack(spacing: Spacing.md) {
-            // MARK: Checkbox (separate tap target)
+            // MARK: Checkbox
             CheckboxButton(isChecked: isCompleted) {
                 toggleCompletion()
             }
 
-            // MARK: Task Info (tappable for edit)
+            // MARK: Task Info
             Button {
                 if !isCompleted {
                     onEdit?(task)
                 }
             } label: {
-                HStack(spacing: Spacing.md) {
-                    VStack(alignment: .leading, spacing: Spacing.xs) {
-                        // Task title
+                HStack(spacing: Spacing.sm) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        // Task title — bold italic
                         Text(task.title)
-                            .font(.system(size: Typography.h4Size, weight: .medium))
-                            .foregroundStyle(isCompleted ? Color.pureWhite.opacity(0.6) : Color.pureWhite)
-                            .strikethrough(isCompleted, color: Color.pureWhite.opacity(0.4))
+                            .font(.system(size: Typography.h4Size + 1, weight: .bold))
+                            .italic()
+                            .foregroundStyle(isCompleted ? Color.pureWhite.opacity(0.35) : Color.pureWhite)
+                            .strikethrough(isCompleted, color: Color.pureWhite.opacity(0.35))
                             .multilineTextAlignment(.leading)
 
-                        // Badges row (only show when not completed)
+                        // Inline badges (only when not completed)
                         if !isCompleted {
-                            HStack(spacing: Spacing.sm) {
-                                // Category badge
-                                if let category = task.category, !category.isEmpty {
-                                    CategoryBadge(category: category)
-                                }
-
-                                // Recurring badge
-                                if task.recurrenceType != .none {
-                                    RecurringBadge(task: task)
-                                }
-                            }
+                            inlineBadges
                         }
                     }
 
                     Spacer()
 
-                    // Chevron indicator
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.mediumGray)
-                        .opacity(isCompleted ? 0 : 0.5)
+                    if !isCompleted {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Color.pureWhite.opacity(0.2))
+                    }
                 }
                 .contentShape(Rectangle())
             }
@@ -94,15 +85,46 @@ struct TaskRow: View {
             .disabled(isCompleted)
         }
         .padding(.horizontal, Spacing.lg)
-        .padding(.vertical, 14)
-        .background(Color.darkGray1)
+        .padding(.vertical, isCompleted ? 10 : 16)
+        .background(isCompleted ? Color.clear : Color.darkGray1)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
-        .shadowLevel1()
-        .opacity(isCompleted ? 0.7 : 1.0)
-        .onAppear {
-            updateCompletionStatus()
-        }
+        .onAppear { updateCompletionStatus() }
         .animation(.easeInOut(duration: 0.2), value: isCompleted)
+    }
+
+    // Inline "HEALTH • DAILY" style badge line
+    @ViewBuilder
+    private var inlineBadges: some View {
+        let hasCategory = task.category != nil && !task.category!.isEmpty
+        let hasRecurrence = task.recurrenceType != .none
+
+        if hasCategory || hasRecurrence {
+            HStack(spacing: 6) {
+                if hasCategory, let category = task.category {
+                    Text(category.uppercased())
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(categoryColor(for: category))
+
+                    if hasRecurrence {
+                        Text("•")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(categoryColor(for: category))
+
+                        Text(task.recurrenceDisplayString.uppercased())
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(categoryColor(for: category))
+                    }
+                } else if hasRecurrence {
+                    Text(task.recurrenceDisplayString.uppercased())
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Color.recoveryGreen)
+                }
+            }
+        }
+    }
+
+    private func categoryColor(for category: String) -> Color {
+        Color.categoryColor(for: category)
     }
 
     // MARK: - Methods

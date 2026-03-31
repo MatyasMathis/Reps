@@ -25,67 +25,76 @@ struct DailyProgressCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
             // Label
-            Text("DAILY PROGRESS")
-                .font(.system(size: Typography.labelSize, weight: .semibold))
-                .foregroundStyle(Color.pureWhite.opacity(0.5))
-                .tracking(0.8)
+            Text("DAILY RHYTHM")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(Color.pureWhite.opacity(0.45))
+                .tracking(1.5)
 
-            // Stats row
-            HStack(alignment: .lastTextBaseline) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(completed)/\(total)")
-                        .font(.system(size: Typography.h2Size + 4, weight: .bold))
+            // Numbers + percentage row
+            HStack(alignment: .center) {
+                // Big number left
+                HStack(alignment: .lastTextBaseline, spacing: 2) {
+                    Text(String(format: "%02d", completed))
+                        .font(.system(size: 72, weight: .black))
+                        .italic()
                         .foregroundStyle(Color.pureWhite)
-                    Text("completed")
-                        .font(.system(size: Typography.captionSize + 1, weight: .medium))
-                        .foregroundStyle(Color.pureWhite.opacity(0.5))
+                        .monospacedDigit()
+
+                    Text("/\(String(format: "%02d", total))")
+                        .font(.system(size: 72, weight: .black))
+                        .italic()
+                        .foregroundStyle(Color.pureWhite.opacity(0.2))
+                        .monospacedDigit()
                 }
 
                 Spacer()
 
+                // Percentage right
                 Text(percentageText)
-                    .font(.system(size: Typography.h2Size + 4, weight: .bold))
+                    .font(.system(size: 42, weight: .black))
+                    .italic()
                     .foregroundStyle(Color.recoveryGreen)
+                    .monospacedDigit()
             }
+
+            // "LOCKED IN" sublabel
+            Text("LOCKED IN")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(Color.pureWhite.opacity(0.45))
+                .tracking(1.5)
 
             // Progress bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    // Background
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.black.opacity(0.3))
-                        .frame(height: 6)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.pureWhite.opacity(0.08))
+                        .frame(height: 4)
 
-                    // Fill
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(Color.recoveryGreen)
-                        .frame(width: geometry.size.width * percentage, height: 6)
+                        .frame(width: max(geometry.size.width * percentage, percentage > 0 ? 8 : 0), height: 4)
                         .animation(.easeInOut(duration: 0.5), value: percentage)
                 }
             }
-            .frame(height: 6)
+            .frame(height: 4)
         }
-        .padding(Spacing.xl)
+        .padding(.horizontal, Spacing.xl)
+        .padding(.top, Spacing.xl)
+        .padding(.bottom, Spacing.lg)
         .background(
             ZStack {
-                // Base dark color
-                Color(hex: "0D1F19")
-                // Green radial glow from bottom-right
+                Color(hex: "141414")
                 RadialGradient(
-                    colors: [
-                        Color.recoveryGreen.opacity(0.25),
-                        Color.clear
-                    ],
-                    center: UnitPoint(x: 1.1, y: 1.2),
+                    colors: [Color.recoveryGreen.opacity(0.18), Color.clear],
+                    center: UnitPoint(x: 1.05, y: -0.05),
                     startRadius: 0,
-                    endRadius: 200
+                    endRadius: 220
                 )
             }
         )
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
-        .shadowLevel1()
+        .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 }
 

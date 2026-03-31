@@ -161,20 +161,18 @@ struct YearInPixelsView: View {
 
                 ScrollView {
                     VStack(spacing: Spacing.xxl) {
-                        // Year selector — always visible
-                        yearSelector
+                        // Year hero header
+                        yearHero
 
-                        // Year content — gated behind Pro with blurred sneak peek
+                        // Year content — gated behind Pro
                         ProFeatureOverlay(
                             icon: "calendar.badge.clock",
                             title: "Year in Pixels",
                             subtitle: "Unlock your full-year heatmap\nand completion patterns"
                         ) {
-                            VStack(spacing: Spacing.xxl) {
+                            VStack(spacing: Spacing.xl) {
                                 statsSummary
-                                pixelGrid
-                                legend
-
+                                activityMosaicCard
                                 if let info = selectedDayInfo {
                                     selectedDayDetail(info)
                                 }
@@ -183,10 +181,9 @@ struct YearInPixelsView: View {
 
                         Color.clear.frame(height: 40)
                     }
-                    .padding(.top, Spacing.lg)
+                    .padding(.top, Spacing.md)
                 }
             }
-            .navigationTitle("Year in Pixels")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -196,16 +193,41 @@ struct YearInPixelsView: View {
                             generator.impactOccurred()
                             showShare = true
                         } label: {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(Color.recoveryGreen)
+                            HStack(spacing: 6) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 13, weight: .bold))
+                                Text("SHARE RECAP")
+                                    .font(.system(size: 12, weight: .bold))
+                            }
+                            .foregroundStyle(Color.recoveryGreen)
+                            .padding(.horizontal, Spacing.md)
+                            .padding(.vertical, Spacing.sm)
+                            .background(Color.darkGray1)
+                            .clipShape(Capsule())
                         }
                     }
                 }
 
+                ToolbarItem(placement: .principal) {
+                    Text("YEAR IN PIXELS")
+                        .font(.system(size: 15, weight: .black))
+                        .italic()
+                        .foregroundStyle(Color.pureWhite)
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .foregroundStyle(Color.recoveryGreen)
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("DONE")
+                            .font(.system(size: 13, weight: .black))
+                            .italic()
+                            .foregroundStyle(Color.brandBlack)
+                            .padding(.horizontal, Spacing.md)
+                            .padding(.vertical, Spacing.sm)
+                            .background(Color.recoveryGreen)
+                            .clipShape(Capsule())
+                    }
                 }
             }
             .toolbarBackground(Color.brandBlack, for: .navigationBar)
@@ -225,82 +247,142 @@ struct YearInPixelsView: View {
 
     // MARK: - Subviews
 
-    private var yearSelector: some View {
-        HStack(spacing: Spacing.xl) {
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    selectedYear -= 1
-                    selectedDayInfo = nil
+    /// Large italic year + "LOCKED IN YEAR" hero with navigation arrows
+    private var yearHero: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: Spacing.xl) {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selectedYear -= 1
+                        selectedDayInfo = nil
+                    }
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(Color.pureWhite)
+                        .frame(width: 40, height: 40)
+                        .background(Color.darkGray1)
+                        .clipShape(RoundedRectangle(cornerRadius: 11))
                 }
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 16, weight: .semibold))
+
+                Text(String(selectedYear))
+                    .font(.system(size: 72, weight: .black))
+                    .italic()
                     .foregroundStyle(Color.pureWhite)
-                    .frame(width: 44, height: 44)
-            }
+                    .monospacedDigit()
 
-            Text(String(selectedYear))
-                .font(.system(size: Typography.h2Size, weight: .bold, design: .rounded))
-                .foregroundStyle(Color.pureWhite)
-                .frame(minWidth: 100)
-
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    selectedYear += 1
-                    selectedDayInfo = nil
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selectedYear += 1
+                        selectedDayInfo = nil
+                    }
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(canGoNext ? Color.pureWhite : Color.pureWhite.opacity(0.2))
+                        .frame(width: 40, height: 40)
+                        .background(Color.darkGray1)
+                        .clipShape(RoundedRectangle(cornerRadius: 11))
                 }
-            } label: {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(canGoNext ? Color.pureWhite : Color.darkGray2)
-                    .frame(width: 44, height: 44)
+                .disabled(!canGoNext)
             }
-            .disabled(!canGoNext)
+
+            Text("LOCKED IN YEAR")
+                .font(.system(size: 12, weight: .bold))
+                .tracking(2.5)
+                .foregroundStyle(Color.recoveryGreen)
         }
+        .padding(.horizontal, Spacing.lg)
     }
 
+    /// Two-column stat cards: TOTAL REPS + ACTIVE DAYS
     private var statsSummary: some View {
-        HStack(spacing: 0) {
-            statItem(value: "\(totalCompletions)", label: "TOTAL REPS")
-            statItem(value: "\(activeDays)", label: "ACTIVE DAYS")
-            statItem(value: "\(longestStreak)", label: "BEST STREAK")
-            statItem(value: "\(bestDay)", label: "BEST DAY")
+        HStack(spacing: Spacing.md) {
+            yearStatCard(value: totalCompletions.formatted(), label: "TOTAL REPS", color: Color.recoveryGreen)
+            yearStatCard(value: "\(activeDays)", label: "ACTIVE DAYS", color: Color.pureWhite)
         }
+        .padding(.horizontal, Spacing.lg)
+    }
+
+    private func yearStatCard(value: String, label: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text(label)
+                .font(.system(size: 11, weight: .bold))
+                .tracking(0.8)
+                .foregroundStyle(Color.pureWhite.opacity(0.4))
+
+            Text(value)
+                .font(.system(size: 44, weight: .black))
+                .italic()
+                .foregroundStyle(color)
+                .monospacedDigit()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, Spacing.lg)
         .padding(.vertical, Spacing.lg)
+        .background(Color.darkGray1)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
+    }
+
+    /// Activity Mosaic card with grid + legend
+    private var activityMosaicCard: some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            HStack {
+                Text("ACTIVITY MOSAIC")
+                    .font(.system(size: 11, weight: .bold))
+                    .tracking(1.2)
+                    .foregroundStyle(Color.pureWhite.opacity(0.4))
+                Spacer()
+                HStack(spacing: 4) {
+                    ForEach(0..<3, id: \.self) { _ in
+                        Circle()
+                            .fill(Color.recoveryGreen.opacity(0.5))
+                            .frame(width: 5, height: 5)
+                    }
+                }
+            }
+
+            pixelGrid
+
+            // Legend
+            HStack(spacing: Spacing.sm) {
+                Text("MINIMAL")
+                    .font(.system(size: 10, weight: .bold))
+                    .tracking(0.5)
+                    .foregroundStyle(Color.pureWhite.opacity(0.3))
+
+                ForEach([0.2, 0.45, 1.0], id: \.self) { opacity in
+                    Circle()
+                        .fill(Color.recoveryGreen.opacity(opacity))
+                        .frame(width: 8, height: 8)
+                }
+
+                Text("PEAK")
+                    .font(.system(size: 10, weight: .bold))
+                    .tracking(0.5)
+                    .foregroundStyle(Color.pureWhite.opacity(0.3))
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .padding(Spacing.lg)
         .background(Color.darkGray1)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
         .padding(.horizontal, Spacing.lg)
     }
 
-    private func statItem(value: String, label: String) -> some View {
-        VStack(spacing: Spacing.xs) {
-            Text(value)
-                .font(.system(size: Typography.h3Size, weight: .bold, design: .rounded))
-                .foregroundStyle(Color.recoveryGreen)
-            Text(label)
-                .font(.system(size: 9, weight: .bold))
-                .foregroundStyle(Color.mediumGray)
-                .tracking(0.5)
-        }
-        .frame(maxWidth: .infinity)
-    }
-
     private var pixelGrid: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Day number header (1, 5, 10, 15, 20, 25, 30)
+            // Day header
             HStack(spacing: 0) {
-                // Spacer for month label column
                 Color.clear.frame(width: 32, height: 14)
-
                 ForEach(1...31, id: \.self) { day in
                     if day == 1 || day % 5 == 0 {
                         Text("\(day)")
                             .font(.system(size: 8, weight: .medium))
-                            .foregroundStyle(Color.mediumGray)
+                            .foregroundStyle(Color.pureWhite.opacity(0.25))
                             .frame(width: cellSize + cellSpacing, height: 14)
                     } else {
-                        Color.clear
-                            .frame(width: cellSize + cellSpacing, height: 14)
+                        Color.clear.frame(width: cellSize + cellSpacing, height: 14)
                     }
                 }
             }
@@ -308,46 +390,37 @@ struct YearInPixelsView: View {
             // Month rows
             ForEach(Array(monthRows.enumerated()), id: \.offset) { monthIndex, days in
                 HStack(spacing: 0) {
-                    // Month label
                     Text(monthNames[monthIndex])
                         .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(Color.mediumGray)
+                        .foregroundStyle(Color.pureWhite.opacity(0.3))
                         .frame(width: 32, alignment: .trailing)
                         .padding(.trailing, Spacing.xs)
 
-                    // Day pixels
-                    ForEach(Array(days.enumerated()), id: \.offset) { dayIndex, day in
+                    ForEach(Array(days.enumerated()), id: \.offset) { _, day in
                         pixelCell(for: day)
                             .padding(.trailing, cellSpacing)
                             .padding(.bottom, cellSpacing)
                     }
 
-                    // Pad remaining cells if month has < 31 days
                     if days.count < 31 {
                         ForEach(0..<(31 - days.count), id: \.self) { _ in
-                            Color.clear
-                                .frame(width: cellSize, height: cellSize)
-                                .padding(.trailing, cellSpacing)
-                                .padding(.bottom, cellSpacing)
+                            Color.clear.frame(width: cellSize, height: cellSize)
+                                .padding(.trailing, cellSpacing).padding(.bottom, cellSpacing)
                         }
                     }
                 }
             }
         }
-        .padding(Spacing.md)
-        .background(Color.darkGray1)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
-        .padding(.horizontal, Spacing.sm)
     }
 
     private func pixelCell(for day: DayInfo) -> some View {
-        RoundedRectangle(cornerRadius: 2)
+        RoundedRectangle(cornerRadius: 3)
             .fill(pixelColor(for: day))
             .frame(width: cellSize, height: cellSize)
             .overlay {
                 if day.isToday {
-                    RoundedRectangle(cornerRadius: 2)
-                        .strokeBorder(Color.pureWhite, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 3)
+                        .strokeBorder(Color.pureWhite.opacity(0.8), lineWidth: 1)
                 }
             }
             .onTapGesture {
@@ -365,31 +438,13 @@ struct YearInPixelsView: View {
         if day.isEmpty || day.isFuture { return Color.clear }
 
         let count = day.completionCount
-        if count == 0 { return Color.darkGray2 }
+        if count == 0 { return Color(hex: "222222") }
 
         switch count {
-        case 1: return Color.recoveryGreen.opacity(0.3)
+        case 1: return Color.recoveryGreen.opacity(0.25)
         case 2: return Color.recoveryGreen.opacity(0.5)
-        case 3...4: return Color.recoveryGreen.opacity(0.7)
+        case 3...4: return Color.recoveryGreen.opacity(0.75)
         default: return Color.recoveryGreen
-        }
-    }
-
-    private var legend: some View {
-        HStack(spacing: Spacing.sm) {
-            Text("Less")
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(Color.mediumGray)
-
-            ForEach([0.0, 0.3, 0.5, 0.7, 1.0], id: \.self) { opacity in
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(opacity == 0 ? Color.darkGray2 : Color.recoveryGreen.opacity(opacity))
-                    .frame(width: 11, height: 11)
-            }
-
-            Text("More")
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(Color.mediumGray)
         }
     }
 
