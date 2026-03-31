@@ -193,18 +193,14 @@ struct YearInPixelsView: View {
                             generator.impactOccurred()
                             showShare = true
                         } label: {
-                            HStack(spacing: 6) {
-                                Image(systemName: "square.and.arrow.up")
-                                    .font(.system(size: 13, weight: .bold))
-                                Text("SHARE RECAP")
-                                    .font(.system(size: 12, weight: .bold))
-                            }
-                            .foregroundStyle(Color.recoveryGreen)
-                            .padding(.horizontal, Spacing.md)
-                            .padding(.vertical, Spacing.sm)
-                            .background(Color.darkGray1)
-                            .clipShape(Capsule())
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundStyle(Color.recoveryGreen)
+                                .frame(width: 36, height: 36)
+                                .background(Color.darkGray1)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
+                        .buttonStyle(.plain)
                     }
                 }
 
@@ -228,6 +224,7 @@ struct YearInPixelsView: View {
                             .background(Color.recoveryGreen)
                             .clipShape(Capsule())
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .toolbarBackground(Color.brandBlack, for: .navigationBar)
