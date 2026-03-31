@@ -149,66 +149,55 @@ struct MainTabView: View {
             .ignoresSafeArea(.keyboard)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                // Leading: always "REPS" brand pill
+                // Leading: settings gear (today) or nothing (history)
                 ToolbarItem(placement: .topBarLeading) {
-                    Text("REPS")
-                        .font(.system(size: 18, weight: .black))
-                        .italic()
-                        .foregroundStyle(Color.pureWhite)
-                        .padding(.horizontal, Spacing.md)
-                        .padding(.vertical, Spacing.sm)
-                        .background(Color.darkGray1)
-                        .clipShape(Capsule())
-                        .transaction { $0.animation = nil }
+                    Group {
+                        if selectedTab == .today {
+                            Button { showSettings = true } label: {
+                                Image(systemName: "gearshape")
+                                    .font(.system(size: 15, weight: .medium))
+                                    .foregroundStyle(Color.mediumGray)
+                                    .frame(width: 36, height: 36)
+                                    .background(Color.darkGray1)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                        }
+                    }
+                    .transaction { $0.animation = nil }
                 }
 
-                // Trailing: tab-specific items
+                // Trailing: date+streak (today) or Stats pill (history)
                 ToolbarItem(placement: .topBarTrailing) {
                     Group {
                         if selectedTab == .today {
-                            HStack(spacing: Spacing.sm) {
-                                // Gear icon in dark rounded square
-                                Button { showSettings = true } label: {
-                                    Image(systemName: "gearshape")
-                                        .font(.system(size: 15, weight: .medium))
-                                        .foregroundStyle(Color.mediumGray)
-                                        .frame(width: 36, height: 36)
-                                        .background(Color.darkGray1)
-                                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                                }
+                            Button { showYearInPixels = true } label: {
+                                HStack(spacing: Spacing.xs) {
+                                    Text(formattedDate.uppercased())
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundStyle(Color.pureWhite.opacity(0.7))
 
-                                // Date + streak pill
-                                Button { showYearInPixels = true } label: {
-                                    HStack(spacing: Spacing.xs) {
-                                        Text(formattedDate.uppercased())
-                                            .font(.system(size: 12, weight: .bold))
-                                            .foregroundStyle(Color.pureWhite.opacity(0.7))
-
-                                        if currentStreak > 0 {
+                                    if currentStreak > 0 {
+                                        ZStack {
+                                            Capsule()
+                                                .fill(Color(hex: "5C3800"))
+                                                .frame(width: 40, height: 22)
                                             HStack(spacing: 3) {
-                                                ZStack {
-                                                    Capsule()
-                                                        .fill(Color(hex: "5C3800"))
-                                                        .frame(width: 38, height: 22)
-                                                    HStack(spacing: 3) {
-                                                        Image(systemName: "flame.fill")
-                                                            .font(.system(size: 10, weight: .bold))
-                                                            .foregroundStyle(Color.personalOrange)
-                                                        Text("\(currentStreak)")
-                                                            .font(.system(size: 11, weight: .bold))
-                                                            .foregroundStyle(Color.pureWhite)
-                                                    }
-                                                }
+                                                Image(systemName: "flame.fill")
+                                                    .font(.system(size: 10, weight: .bold))
+                                                    .foregroundStyle(Color.personalOrange)
+                                                Text("\(currentStreak)")
+                                                    .font(.system(size: 11, weight: .bold))
+                                                    .foregroundStyle(Color.pureWhite)
                                             }
                                         }
                                     }
-                                    .padding(.horizontal, Spacing.md)
-                                    .padding(.vertical, Spacing.sm)
-                                    .background(Color.darkGray1)
-                                    .clipShape(Capsule())
                                 }
-                                .buttonStyle(.plain)
+                                .padding(.horizontal, Spacing.md)
+                                .padding(.vertical, Spacing.sm)
+                                .background(Color.darkGray1)
+                                .clipShape(Capsule())
                             }
+                            .buttonStyle(.plain)
                         } else {
                             // Stats pill
                             Button { showStats = true } label: {

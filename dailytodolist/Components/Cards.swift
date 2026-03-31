@@ -33,29 +33,34 @@ struct DailyProgressCard: View {
                 .tracking(1.5)
 
             // Numbers + percentage row
-            HStack(alignment: .center) {
-                // Big number left
-                HStack(alignment: .lastTextBaseline, spacing: 2) {
-                    Text(String(format: "%02d", completed))
-                        .font(.system(size: 72, weight: .black))
+            HStack(alignment: .center, spacing: Spacing.sm) {
+                // Completed + total
+                HStack(alignment: .lastTextBaseline, spacing: 4) {
+                    Text("\(completed)")
+                        .font(.system(size: 52, weight: .black))
                         .italic()
                         .foregroundStyle(Color.pureWhite)
+                        .lineLimit(1)
                         .monospacedDigit()
 
-                    Text("/\(String(format: "%02d", total))")
-                        .font(.system(size: 72, weight: .black))
+                    Text("/ \(total)")
+                        .font(.system(size: 52, weight: .black))
                         .italic()
                         .foregroundStyle(Color.pureWhite.opacity(0.2))
+                        .lineLimit(1)
                         .monospacedDigit()
                 }
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
 
-                Spacer()
+                Spacer(minLength: Spacing.sm)
 
-                // Percentage right
+                // Percentage
                 Text(percentageText)
-                    .font(.system(size: 42, weight: .black))
+                    .font(.system(size: 34, weight: .black))
                     .italic()
                     .foregroundStyle(Color.recoveryGreen)
+                    .lineLimit(1)
                     .monospacedDigit()
             }
 
