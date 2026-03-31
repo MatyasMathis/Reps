@@ -147,7 +147,7 @@ struct PaywallView: View {
                 subtitle: "TRENDS, STREAKS & ANALYTICS"
             )
             featureCard(
-                icon: "calendar.fill",
+                icon: "chart.dots.scatter",
                 iconBg: Color(hex: "2E1E08"),
                 iconColor: Color.personalOrange,
                 title: "Year in Pixels",

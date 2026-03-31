@@ -156,10 +156,8 @@ struct SettingsView: View {
             }
             .buttonStyle(.plain)
         }
-        .sheet(isPresented: $showPaywall) {
+        .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
         }
     }
 

@@ -148,10 +148,8 @@ struct RecurrenceTypeOption: View {
             .opacity(isLocked ? 0.6 : 1.0)
         }
         .buttonStyle(.plain)
-        .sheet(isPresented: $showPaywall) {
+        .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
         }
     }
 }

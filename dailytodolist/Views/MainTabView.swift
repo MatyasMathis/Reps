@@ -258,10 +258,8 @@ struct MainTabView: View {
                     .zIndex(10)
                 }
             }
-            .sheet(isPresented: $showHistoryPaywall) {
+            .fullScreenCover(isPresented: $showHistoryPaywall) {
                 PaywallView()
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()

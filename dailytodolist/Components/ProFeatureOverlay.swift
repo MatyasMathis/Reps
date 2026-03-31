@@ -123,10 +123,8 @@ struct ProFeatureOverlay<Content: View>: View {
                 .strokeBorder(Color.recoveryGreen.opacity(0.15), lineWidth: 1)
         )
         .padding(.horizontal, Spacing.xl)
-        .sheet(isPresented: $showPaywall) {
+        .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
         }
     }
 }
