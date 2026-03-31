@@ -149,7 +149,7 @@ struct MainTabView: View {
             .ignoresSafeArea(.keyboard)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                // Leading: tab title (instant swap, no animation)
+                // Leading: tab title in pill
                 ToolbarItem(placement: .topBarLeading) {
                     Group {
                         if selectedTab == .today {
@@ -158,41 +158,70 @@ struct MainTabView: View {
                             Text("History")
                         }
                     }
-                    .font(.system(size: Typography.h3Size, weight: .bold))
+                    .font(.system(size: Typography.h4Size, weight: .bold))
                     .foregroundStyle(Color.pureWhite)
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.vertical, Spacing.sm)
+                    .background(Color.darkGray1)
+                    .clipShape(Capsule())
                     .fixedSize()
                     .transaction { $0.animation = nil }
                 }
 
-                // Trailing: tab-specific items (instant swap)
+                // Trailing: tab-specific items
                 ToolbarItem(placement: .topBarTrailing) {
                     Group {
                         if selectedTab == .today {
-                            HStack(spacing: Spacing.md) {
+                            HStack(spacing: Spacing.sm) {
+                                // Gear icon in circle
                                 Button { showSettings = true } label: {
                                     Image(systemName: "gearshape")
-                                        .font(.system(size: 16, weight: .medium))
+                                        .font(.system(size: 15, weight: .medium))
                                         .foregroundStyle(Color.mediumGray)
+                                        .frame(width: 34, height: 34)
+                                        .background(Color.darkGray1)
+                                        .clipShape(Circle())
                                 }
 
-                                Text(formattedDate)
-                                    .font(.system(size: Typography.bodySize, weight: .medium))
-                                    .foregroundStyle(Color.mediumGray)
+                                // Date + streak in pill
+                                Button { showYearInPixels = true } label: {
+                                    HStack(spacing: Spacing.xs) {
+                                        Text(formattedDate)
+                                            .font(.system(size: Typography.captionSize + 1, weight: .semibold))
+                                            .foregroundStyle(Color.pureWhite)
 
-                                if currentStreak > 0 {
-                                    Button { showYearInPixels = true } label: {
-                                        StreakBadge(count: currentStreak)
+                                        if currentStreak > 0 {
+                                            HStack(spacing: 3) {
+                                                Image(systemName: "flame.fill")
+                                                    .font(.system(size: 11, weight: .bold))
+                                                    .foregroundStyle(Color.personalOrange)
+                                                Text("\(currentStreak)")
+                                                    .font(.system(size: Typography.captionSize + 1, weight: .bold))
+                                                    .foregroundStyle(Color.pureWhite)
+                                            }
+                                        }
                                     }
+                                    .padding(.horizontal, Spacing.md)
+                                    .padding(.vertical, Spacing.sm)
+                                    .background(Color.darkGray1)
+                                    .clipShape(Capsule())
                                 }
+                                .buttonStyle(.plain)
                             }
                         } else {
+                            // Stats button as green pill
                             Button { showStats = true } label: {
                                 HStack(spacing: Spacing.xs) {
                                     Image(systemName: "chart.bar.fill")
+                                        .font(.system(size: 13, weight: .semibold))
                                     Text("Stats")
+                                        .font(.system(size: Typography.captionSize + 1, weight: .semibold))
                                 }
-                                .font(.system(size: Typography.bodySize, weight: .medium))
                                 .foregroundStyle(Color.recoveryGreen)
+                                .padding(.horizontal, Spacing.md)
+                                .padding(.vertical, Spacing.sm)
+                                .background(Color.recoveryGreen.opacity(0.15))
+                                .clipShape(Capsule())
                             }
                         }
                     }

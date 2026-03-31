@@ -29,18 +29,24 @@ struct DailyProgressCard: View {
             // Label
             Text("DAILY PROGRESS")
                 .font(.system(size: Typography.labelSize, weight: .semibold))
-                .foregroundStyle(Color.mediumGray)
+                .foregroundStyle(Color.pureWhite.opacity(0.5))
+                .tracking(0.8)
 
             // Stats row
             HStack(alignment: .lastTextBaseline) {
-                Text("\(completed)/\(total) completed")
-                    .font(.system(size: Typography.h2Size, weight: .bold))
-                    .foregroundStyle(Color.pureWhite)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(completed)/\(total)")
+                        .font(.system(size: Typography.h2Size + 4, weight: .bold))
+                        .foregroundStyle(Color.pureWhite)
+                    Text("completed")
+                        .font(.system(size: Typography.captionSize + 1, weight: .medium))
+                        .foregroundStyle(Color.pureWhite.opacity(0.5))
+                }
 
                 Spacer()
 
                 Text(percentageText)
-                    .font(.system(size: Typography.h2Size, weight: .bold))
+                    .font(.system(size: Typography.h2Size + 4, weight: .bold))
                     .foregroundStyle(Color.recoveryGreen)
             }
 
@@ -49,19 +55,37 @@ struct DailyProgressCard: View {
                 ZStack(alignment: .leading) {
                     // Background
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.darkGray2)
-                        .frame(height: 8)
+                        .fill(Color.black.opacity(0.3))
+                        .frame(height: 6)
 
                     // Fill
                     RoundedRectangle(cornerRadius: 4)
                         .fill(Color.recoveryGreen)
-                        .frame(width: geometry.size.width * percentage, height: 8)
+                        .frame(width: geometry.size.width * percentage, height: 6)
                         .animation(.easeInOut(duration: 0.5), value: percentage)
                 }
             }
-            .frame(height: 8)
+            .frame(height: 6)
         }
-        .statsCardStyle()
+        .padding(Spacing.xl)
+        .background(
+            ZStack {
+                // Base dark color
+                Color(hex: "0D1F19")
+                // Green radial glow from bottom-right
+                RadialGradient(
+                    colors: [
+                        Color.recoveryGreen.opacity(0.25),
+                        Color.clear
+                    ],
+                    center: UnitPoint(x: 1.1, y: 1.2),
+                    startRadius: 0,
+                    endRadius: 200
+                )
+            }
+        )
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
+        .shadowLevel1()
     }
 }
 
@@ -81,7 +105,7 @@ struct TaskCardContainer<Content: View>: View {
         content
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, 14)
-            .background(Color.darkGray2)
+            .background(Color.darkGray1)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
             .opacity(isCompleted ? 0.6 : 1.0)
     }

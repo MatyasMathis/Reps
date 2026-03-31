@@ -77,7 +77,7 @@ struct HistoryRow: View {
         }
         .padding(.horizontal, Spacing.lg)
         .padding(.vertical, 14)
-        .background(Color.darkGray2)
+        .background(Color.darkGray1)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
         .shadowLevel1()
     }

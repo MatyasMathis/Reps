@@ -107,8 +107,11 @@ struct StatsView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(Color.pureWhite)
+                            .frame(width: 34, height: 34)
+                            .background(Color.darkGray1)
+                            .clipShape(Circle())
                     }
                 }
 
@@ -271,38 +274,34 @@ struct StatsView: View {
         .buttonStyle(.plain)
     }
 
-    /// Quick numbers bar
+    /// Quick numbers 2x2 grid
     private var quickNumbers: some View {
-        HStack(spacing: 0) {
-            StatItem(
+        let rateValue = cachedCompletionRate
+        return LazyVGrid(columns: [GridItem(.flexible(), spacing: Spacing.sm), GridItem(.flexible(), spacing: Spacing.sm)], spacing: Spacing.sm) {
+            StatGridCard(
                 label: "TOTAL REPS",
                 value: "\(cachedTotalReps)",
                 color: categoryColor
             )
 
-            if let rate = cachedCompletionRate {
-                StatItem(
-                    label: "RATE",
-                    value: "\(rate)%",
-                    color: rateColor(for: rate)
-                )
-            }
+            StatGridCard(
+                label: "RATE",
+                value: rateValue != nil ? "\(rateValue!)%" : "—",
+                color: rateValue != nil ? rateColor(for: rateValue!) : .mediumGray
+            )
 
-            StatItem(
+            StatGridCard(
                 label: "STREAK",
                 value: "\(cachedCurrentStreak)",
                 color: cachedCurrentStreak > 0 ? categoryColor : .mediumGray
             )
 
-            StatItem(
+            StatGridCard(
                 label: "BEST",
                 value: "\(cachedBestStreak)",
-                color: cachedBestStreak > 0 ? categoryColor : .mediumGray
+                color: cachedBestStreak > 0 ? Color.performancePurple : .mediumGray
             )
         }
-        .padding(.vertical, Spacing.md)
-        .background(Color.darkGray1)
-        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
     }
 
     /// Empty state

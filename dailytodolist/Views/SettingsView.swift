@@ -76,15 +76,15 @@ struct SettingsView: View {
                         .foregroundStyle(Color.pureWhite)
                 }
 
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button {
                         dismiss()
                     } label: {
-                        Image(systemName: "xmark")
+                        Image(systemName: "chevron.left")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(Color.mediumGray)
-                            .frame(width: 30, height: 30)
-                            .background(Color.darkGray2)
+                            .foregroundStyle(Color.pureWhite)
+                            .frame(width: 34, height: 34)
+                            .background(Color.darkGray1)
                             .clipShape(Circle())
                     }
                 }
@@ -99,15 +99,9 @@ struct SettingsView: View {
 
     private var appInfoSection: some View {
         VStack(spacing: Spacing.sm) {
-            Image("Logo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 72, height: 72)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-
             Text("REPS")
-                .font(.system(size: 28, weight: .black, design: .rounded))
-                .tracking(3)
+                .font(.system(size: 36, weight: .black))
+                .italic()
                 .foregroundStyle(Color.pureWhite)
 
             Text("Lock in.")
@@ -129,34 +123,30 @@ struct SettingsView: View {
                     showPaywall = true
                 }
             } label: {
-                HStack {
-                    Image(systemName: store.isProUnlocked ? "crown.fill" : "crown")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(store.isProUnlocked ? Color.recoveryGreen : Color.mediumGray)
+                HStack(spacing: Spacing.md) {
+                    // Crown icon in amber circle
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "7A5200"))
+                            .frame(width: 40, height: 40)
+                        Image(systemName: "crown.fill")
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundStyle(Color(hex: "FFB800"))
+                    }
 
                     Text(store.isProUnlocked ? "REPS Pro" : "Free Plan")
-                        .font(.system(size: Typography.bodySize, weight: .medium))
+                        .font(.system(size: Typography.bodySize, weight: .semibold))
                         .foregroundStyle(Color.pureWhite)
 
                     Spacer()
 
-                    if store.isProUnlocked {
-                        Text("PRO")
-                            .font(.system(size: Typography.captionSize, weight: .bold))
-                            .foregroundStyle(Color.brandBlack)
-                            .padding(.horizontal, Spacing.sm)
-                            .padding(.vertical, Spacing.xs)
-                            .background(Color.recoveryGreen)
-                            .clipShape(Capsule())
-                    } else {
-                        Text("UPGRADE")
-                            .font(.system(size: Typography.captionSize, weight: .bold))
-                            .foregroundStyle(Color.brandBlack)
-                            .padding(.horizontal, Spacing.sm)
-                            .padding(.vertical, Spacing.xs)
-                            .background(Color.recoveryGreen)
-                            .clipShape(Capsule())
-                    }
+                    Text(store.isProUnlocked ? "ACTIVE" : "UPGRADE")
+                        .font(.system(size: Typography.captionSize, weight: .bold))
+                        .foregroundStyle(store.isProUnlocked ? Color.brandBlack : Color.brandBlack)
+                        .padding(.horizontal, Spacing.md)
+                        .padding(.vertical, Spacing.xs + 2)
+                        .background(Color.recoveryGreen)
+                        .clipShape(Capsule())
                 }
                 .padding(Spacing.lg)
                 .background(Color.darkGray1)
@@ -182,17 +172,22 @@ struct SettingsView: View {
                 let isActive = UserDefaults.standard.bool(forKey: "cloudKitActiveOnLaunch")
 
                 HStack(spacing: Spacing.md) {
-                    Image(systemName: "icloud.fill")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color.recoveryGreen)
-                        .frame(width: 24)
+                    // iCloud icon in blue circle
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "1A3A5C"))
+                            .frame(width: 40, height: 40)
+                        Image(systemName: "icloud.fill")
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundStyle(Color(hex: "4A90E2"))
+                    }
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("iCloud Sync")
-                            .font(.system(size: Typography.bodySize, weight: .medium))
+                            .font(.system(size: Typography.bodySize, weight: .semibold))
                             .foregroundStyle(Color.pureWhite)
 
-                        Text("Tasks sync across all your Apple devices")
+                        Text("Sync across all devices")
                             .font(.system(size: Typography.captionSize, weight: .regular))
                             .foregroundStyle(Color.mediumGray)
                     }
@@ -204,8 +199,8 @@ struct SettingsView: View {
                             .fill(isActive ? Color.recoveryGreen : Color.mediumGray)
                             .frame(width: 7, height: 7)
 
-                        Text(isActive ? "Active" : "Restart required")
-                            .font(.system(size: Typography.captionSize, weight: .medium))
+                        Text(isActive ? "ACTIVE" : "Restart required")
+                            .font(.system(size: Typography.captionSize, weight: .semibold))
                             .foregroundStyle(isActive ? Color.recoveryGreen : Color.mediumGray)
                     }
                 }
@@ -225,17 +220,22 @@ struct SettingsView: View {
             VStack(spacing: 0) {
                 // Daily reminder toggle
                 HStack(spacing: Spacing.md) {
-                    Image(systemName: "bell.fill")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color.recoveryGreen)
-                        .frame(width: 24)
+                    // Bell icon in green circle
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "0D3322"))
+                            .frame(width: 40, height: 40)
+                        Image(systemName: "bell.fill")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(Color.recoveryGreen)
+                    }
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Daily Reminder")
-                            .font(.system(size: Typography.bodySize, weight: .medium))
+                            .font(.system(size: Typography.bodySize, weight: .semibold))
                             .foregroundStyle(Color.pureWhite)
 
-                        Text("Get a nudge to complete your tasks")
+                        Text("Get a nudge to complete tasks")
                             .font(.system(size: Typography.captionSize, weight: .regular))
                             .foregroundStyle(Color.mediumGray)
                     }
@@ -349,7 +349,9 @@ struct SettingsView: View {
 
             VStack(spacing: 0) {
                 settingsToggleRow(
-                    icon: "speaker.wave.2",
+                    icon: "music.note",
+                    iconBgColor: Color(hex: "2D1A5C"),
+                    iconColor: Color(hex: "9B7FFF"),
                     title: "Completion Sound",
                     subtitle: "Play sound when completing tasks",
                     isOn: $soundEnabled
@@ -359,7 +361,9 @@ struct SettingsView: View {
                     .background(Color.darkGray2)
 
                 settingsToggleRow(
-                    icon: "hand.tap",
+                    icon: "iphone.radiowaves.left.and.right",
+                    iconBgColor: Color(hex: "5C1A2D"),
+                    iconColor: Color(hex: "FF5C8A"),
                     title: "Haptic Feedback",
                     subtitle: "Vibration on interactions",
                     isOn: $hapticFeedbackEnabled
@@ -374,7 +378,7 @@ struct SettingsView: View {
 
     private var dataSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            sectionLabel("DATA")
+            sectionLabel("DATA MANAGEMENT")
 
             Button {
                 Task { await store.restore() }
@@ -510,19 +514,25 @@ struct SettingsView: View {
 
     private func settingsToggleRow(
         icon: String,
+        iconBgColor: Color = Color(hex: "0D3322"),
+        iconColor: Color = Color.recoveryGreen,
         title: String,
         subtitle: String,
         isOn: Binding<Bool>
     ) -> some View {
         HStack(spacing: Spacing.md) {
-            Image(systemName: icon)
-                .font(.system(size: 18, weight: .medium))
-                .foregroundStyle(Color.recoveryGreen)
-                .frame(width: 24)
+            ZStack {
+                Circle()
+                    .fill(iconBgColor)
+                    .frame(width: 40, height: 40)
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(iconColor)
+            }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: Typography.bodySize, weight: .medium))
+                    .font(.system(size: Typography.bodySize, weight: .semibold))
                     .foregroundStyle(Color.pureWhite)
 
                 Text(subtitle)

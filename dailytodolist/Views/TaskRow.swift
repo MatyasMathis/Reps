@@ -95,7 +95,7 @@ struct TaskRow: View {
         }
         .padding(.horizontal, Spacing.lg)
         .padding(.vertical, 14)
-        .background(Color.darkGray2)
+        .background(Color.darkGray1)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
         .shadowLevel1()
         .opacity(isCompleted ? 0.7 : 1.0)
