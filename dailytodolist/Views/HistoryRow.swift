@@ -1,6 +1,6 @@
 //
 //  HistoryRow.swift
-//  dailytodolist
+//  Reps
 //
 //  Purpose: Individual row component for completed tasks with Whoop-inspired design
 //  Design: Dark card styling with green checkmark and time badge
@@ -9,18 +9,15 @@
 import SwiftUI
 import SwiftData
 
-/// A row view displaying a single completion record with Whoop-inspired styling
-///
-/// Features:
-/// - Recovery green checkmark icon
-/// - Dark card background
-/// - Time badge in monospace font
-/// - Category and recurring badges
+/// A row view displaying a single completion record
 struct HistoryRow: View {
 
     // MARK: - Properties
 
     let completion: TaskCompletion
+
+    @Query(sort: \CustomCategory.sortOrder)
+    private var customCategories: [CustomCategory]
 
     // MARK: - Computed Properties
 
@@ -32,44 +29,53 @@ struct HistoryRow: View {
 
     var body: some View {
         HStack(spacing: Spacing.md) {
-            // MARK: Checkmark Icon
+            // Checkmark — rounded square matching CheckboxButton style
             ZStack {
-                Circle()
+                RoundedRectangle(cornerRadius: 8)
                     .fill(Color.recoveryGreen)
-                    .frame(width: ComponentSize.checkbox, height: ComponentSize.checkbox)
-
+                    .frame(width: 30, height: 30)
                 Image(systemName: "checkmark")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(Color.pureWhite)
+                    .font(.system(size: 13, weight: .black))
+                    .foregroundStyle(Color.brandBlack)
             }
 
-            // MARK: Task Info
-            VStack(alignment: .leading, spacing: Spacing.xs) {
+            // Task Info
+            VStack(alignment: .leading, spacing: 4) {
                 if let task = completion.task {
                     Text(task.title)
-                        .font(.system(size: Typography.h4Size, weight: .medium))
+                        .font(.system(size: Typography.h4Size, weight: .bold))
+                        .italic()
                         .foregroundStyle(Color.pureWhite)
 
-                    // Badges row
-                    HStack(spacing: Spacing.sm) {
-                        // Time badge
-                        TimeBadge(time: formattedTime)
+                    // Inline badges — time • category • recurrence
+                    HStack(spacing: 6) {
+                        Text(formattedTime)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(Color.mediumGray)
 
-                        // Category badge
                         if let category = task.category, !category.isEmpty {
-                            CategoryBadge(category: category)
+                            Text("•")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Color.mediumGray.opacity(0.4))
+                            Text(category.uppercased())
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Color.categoryColor(for: category, customCategories: customCategories))
                         }
 
-                        // Recurring badge
                         if task.recurrenceType != .none {
-                            RecurringBadge(task: task)
+                            Text("•")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Color.mediumGray.opacity(0.4))
+                            Text(task.recurrenceDisplayString.uppercased())
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Color.performancePurple)
                         }
                     }
                 } else {
                     Text("Completed Task")
-                        .font(.system(size: Typography.h4Size, weight: .medium))
-                        .foregroundStyle(Color.mediumGray)
+                        .font(.system(size: Typography.h4Size, weight: .bold))
                         .italic()
+                        .foregroundStyle(Color.mediumGray)
                 }
             }
 
@@ -79,7 +85,6 @@ struct HistoryRow: View {
         .padding(.vertical, 14)
         .background(Color.darkGray1)
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
-        .shadowLevel1()
     }
 }
 
@@ -89,7 +94,6 @@ struct HistoryRow: View {
     ZStack {
         Color.brandBlack.ignoresSafeArea()
         VStack(spacing: Spacing.sm) {
-            // Preview would need actual data
             Text("History Row Preview")
                 .foregroundStyle(Color.pureWhite)
         }

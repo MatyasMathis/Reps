@@ -171,9 +171,10 @@ struct SectionHeader: View {
 
     var body: some View {
         Text(title.uppercased())
-            .font(.system(size: Typography.captionSize, weight: .bold))
+            .font(.system(size: Typography.captionSize, weight: .black))
+            .italic()
             .foregroundStyle(Color.mediumGray)
-            .tracking(0.8)
+            .tracking(1.2)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.md)
