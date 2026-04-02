@@ -215,14 +215,12 @@ struct YearInPixelsView: View {
                     Button {
                         dismiss()
                     } label: {
-                        Text("DONE")
-                            .font(.system(size: 13, weight: .black))
-                            .italic()
-                            .foregroundStyle(Color.brandBlack)
-                            .padding(.horizontal, Spacing.md)
-                            .padding(.vertical, Spacing.sm)
-                            .background(Color.recoveryGreen)
-                            .clipShape(Capsule())
+                        Image(systemName: "xmark")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(Color.mediumGray)
+                            .frame(width: 36, height: 36)
+                            .background(Color.darkGray1)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .buttonStyle(.plain)
                 }
