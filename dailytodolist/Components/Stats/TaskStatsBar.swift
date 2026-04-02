@@ -223,16 +223,17 @@ struct StatGridCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text(label)
-                .font(.system(size: Typography.captionSize, weight: .semibold))
+                .font(.system(size: Typography.captionSize, weight: .bold))
                 .foregroundStyle(Color.mediumGray)
-                .tracking(0.5)
+                .tracking(1.0)
 
             Text(value)
-                .font(.system(size: 40, weight: .bold))
+                .font(.system(size: 44, weight: .black))
                 .italic()
                 .foregroundStyle(color)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
+                .monospacedDigit()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, Spacing.lg)

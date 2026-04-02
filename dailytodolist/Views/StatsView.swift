@@ -107,17 +107,19 @@ struct StatsView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(Color.pureWhite)
-                            .frame(width: 34, height: 34)
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(Color.mediumGray)
+                            .frame(width: 36, height: 36)
                             .background(Color.darkGray1)
-                            .clipShape(Circle())
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
+                    .buttonStyle(.plain)
                 }
 
                 ToolbarItem(placement: .principal) {
-                    Text("Statistics")
-                        .font(.system(size: Typography.h4Size, weight: .bold))
+                    Text("STATISTICS")
+                        .font(.system(size: 15, weight: .black))
+                        .italic()
                         .foregroundStyle(Color.pureWhite)
                 }
             }
@@ -215,14 +217,15 @@ struct StatsView: View {
                             HStack(spacing: Spacing.sm) {
                                 Image(systemName: "square.and.arrow.up")
                                     .font(.system(size: 14, weight: .bold))
-                                Text("Share Calendar")
-                                    .font(.system(size: Typography.bodySize, weight: .bold))
+                                Text("SHARE CALENDAR")
+                                    .font(.system(size: Typography.bodySize, weight: .black))
+                                    .italic()
                             }
                             .foregroundStyle(Color.brandBlack)
                             .frame(maxWidth: .infinity)
                             .frame(height: ComponentSize.buttonHeight)
                             .background(categoryColor)
-                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
                         }
                     }
                 }

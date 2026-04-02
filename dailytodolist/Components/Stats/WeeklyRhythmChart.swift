@@ -48,9 +48,10 @@ struct WeeklyRhythmChart: View {
         VStack(spacing: Spacing.md) {
             // Section label
             Text("WEEKLY RHYTHM")
-                .font(.system(size: Typography.captionSize, weight: .bold))
+                .font(.system(size: Typography.captionSize, weight: .black))
+                .italic()
                 .foregroundStyle(Color.mediumGray)
-                .tracking(1.0)
+                .tracking(1.2)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             // Bars

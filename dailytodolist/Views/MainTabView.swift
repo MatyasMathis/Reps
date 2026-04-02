@@ -265,7 +265,7 @@ struct MainTabView: View {
             .fullScreenCover(isPresented: $showYearInPixels) {
                 YearInPixelsView()
             }
-            .sheet(isPresented: $showStats) {
+            .fullScreenCover(isPresented: $showStats) {
                 StatsView()
             }
         }
