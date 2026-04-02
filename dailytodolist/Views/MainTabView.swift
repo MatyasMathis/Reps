@@ -208,12 +208,7 @@ struct MainTabView: View {
                                         .font(.system(size: 12, weight: .bold))
                                 }
                                 .foregroundStyle(Color.recoveryGreen)
-                                .padding(.horizontal, Spacing.md)
-                                .padding(.vertical, Spacing.sm)
-                                .background(Color.recoveryGreen.opacity(0.15))
-                                .clipShape(Capsule())
                             }
-                            .buttonStyle(.plain)
                         }
                     }
                     .transaction { $0.animation = nil }
