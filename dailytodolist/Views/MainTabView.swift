@@ -213,6 +213,7 @@ struct MainTabView: View {
                                 .background(Color.recoveryGreen.opacity(0.15))
                                 .clipShape(Capsule())
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                     .transaction { $0.animation = nil }
