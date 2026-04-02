@@ -161,6 +161,7 @@ struct MainTabView: View {
                                     .background(Color.darkGray1)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                     .transaction { $0.animation = nil }
@@ -177,27 +178,17 @@ struct MainTabView: View {
                                         .foregroundStyle(Color.pureWhite.opacity(0.7))
 
                                     if currentStreak > 0 {
-                                        ZStack {
-                                            Capsule()
-                                                .fill(Color(hex: "5C3800"))
-                                                .frame(width: 40, height: 22)
-                                            HStack(spacing: 3) {
-                                                Image(systemName: "flame.fill")
-                                                    .font(.system(size: 10, weight: .bold))
-                                                    .foregroundStyle(Color.personalOrange)
-                                                Text("\(currentStreak)")
-                                                    .font(.system(size: 11, weight: .bold))
-                                                    .foregroundStyle(Color.pureWhite)
-                                            }
+                                        HStack(spacing: 3) {
+                                            Image(systemName: "flame.fill")
+                                                .font(.system(size: 10, weight: .bold))
+                                                .foregroundStyle(Color.personalOrange)
+                                            Text("\(currentStreak)")
+                                                .font(.system(size: 11, weight: .bold))
+                                                .foregroundStyle(Color.pureWhite)
                                         }
                                     }
                                 }
-                                .padding(.horizontal, Spacing.md)
-                                .padding(.vertical, Spacing.sm)
-                                .background(Color.darkGray1)
-                                .clipShape(Capsule())
                             }
-                            .buttonStyle(.plain)
                         } else {
                             // Stats pill
                             Button { showStats = true } label: {
