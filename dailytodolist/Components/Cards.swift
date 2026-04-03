@@ -25,43 +25,81 @@ struct DailyProgressCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
             // Label
-            Text("DAILY PROGRESS")
-                .font(.system(size: Typography.labelSize, weight: .semibold))
-                .foregroundStyle(Color.mediumGray)
+            Text("DAILY RHYTHM")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(Color.pureWhite.opacity(0.45))
+                .tracking(1.5)
 
-            // Stats row
-            HStack(alignment: .lastTextBaseline) {
-                Text("\(completed)/\(total) completed")
-                    .font(.system(size: Typography.h2Size, weight: .bold))
-                    .foregroundStyle(Color.pureWhite)
+            // Numbers + percentage row
+            HStack(alignment: .center, spacing: Spacing.sm) {
+                // Completed + total
+                HStack(alignment: .lastTextBaseline, spacing: 4) {
+                    Text("\(completed)")
+                        .font(.system(size: 52, weight: .black))
+                        .italic()
+                        .foregroundStyle(Color.pureWhite)
+                        .lineLimit(1)
+                        .monospacedDigit()
 
-                Spacer()
+                    Text("/ \(total)")
+                        .font(.system(size: 52, weight: .black))
+                        .italic()
+                        .foregroundStyle(Color.pureWhite.opacity(0.2))
+                        .lineLimit(1)
+                        .monospacedDigit()
+                }
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
 
+                Spacer(minLength: Spacing.sm)
+
+                // Percentage
                 Text(percentageText)
-                    .font(.system(size: Typography.h2Size, weight: .bold))
+                    .font(.system(size: 34, weight: .black))
+                    .italic()
                     .foregroundStyle(Color.recoveryGreen)
+                    .lineLimit(1)
+                    .monospacedDigit()
             }
+
+            // "LOCKED IN" sublabel
+            Text("LOCKED IN")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(Color.pureWhite.opacity(0.45))
+                .tracking(1.5)
 
             // Progress bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    // Background
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.darkGray2)
-                        .frame(height: 8)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.pureWhite.opacity(0.08))
+                        .frame(height: 4)
 
-                    // Fill
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(Color.recoveryGreen)
-                        .frame(width: geometry.size.width * percentage, height: 8)
+                        .frame(width: max(geometry.size.width * percentage, percentage > 0 ? 8 : 0), height: 4)
                         .animation(.easeInOut(duration: 0.5), value: percentage)
                 }
             }
-            .frame(height: 8)
+            .frame(height: 4)
         }
-        .statsCardStyle()
+        .padding(.horizontal, Spacing.xl)
+        .padding(.top, Spacing.xl)
+        .padding(.bottom, Spacing.lg)
+        .background(
+            ZStack {
+                Color(hex: "141414")
+                RadialGradient(
+                    colors: [Color.recoveryGreen.opacity(0.18), Color.clear],
+                    center: UnitPoint(x: 1.05, y: -0.05),
+                    startRadius: 0,
+                    endRadius: 220
+                )
+            }
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 }
 
@@ -81,7 +119,7 @@ struct TaskCardContainer<Content: View>: View {
         content
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, 14)
-            .background(Color.darkGray2)
+            .background(Color.darkGray1)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
             .opacity(isCompleted ? 0.6 : 1.0)
     }
@@ -133,9 +171,10 @@ struct SectionHeader: View {
 
     var body: some View {
         Text(title.uppercased())
-            .font(.system(size: Typography.captionSize, weight: .bold))
+            .font(.system(size: Typography.captionSize, weight: .black))
+            .italic()
             .foregroundStyle(Color.mediumGray)
-            .tracking(0.8)
+            .tracking(1.2)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.md)

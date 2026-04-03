@@ -57,4 +57,10 @@ enum ShareService {
         guard let image = renderImage(from: view, size: size) else { return }
         share(image: image)
     }
+
+    /// Saves an image directly to the user's photo library
+    @MainActor
+    static func saveToPhotos(image: UIImage) {
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+    }
 }

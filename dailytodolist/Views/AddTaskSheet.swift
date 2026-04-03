@@ -98,7 +98,7 @@ struct AddTaskSheet: View {
         NavigationStack {
             ZStack {
                 // Background
-                Color.darkGray1.ignoresSafeArea()
+                Color.brandBlack.ignoresSafeArea()
 
                 ScrollView {
                     VStack(spacing: Spacing.section) {
@@ -126,7 +126,7 @@ struct AddTaskSheet: View {
                         }
 
                         // Create/Update Button
-                        Button(isEditMode ? "Update Task" : "Create Task") {
+                        Button(isEditMode ? "UPDATE TASK" : "CREATE TASK") {
                             saveTask()
                         }
                         .buttonStyle(.primary)
@@ -139,8 +139,9 @@ struct AddTaskSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text(isEditMode ? "Edit Task" : "Add New Task")
-                        .font(.system(size: Typography.h3Size, weight: .bold))
+                    Text(isEditMode ? "EDIT TASK" : "ADD TASK")
+                        .font(.system(size: 15, weight: .black))
+                        .italic()
                         .foregroundStyle(Color.pureWhite)
                 }
 
@@ -149,15 +150,15 @@ struct AddTaskSheet: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.system(size: 13, weight: .bold))
                             .foregroundStyle(Color.mediumGray)
-                            .frame(width: 30, height: 30)
-                            .background(Color.darkGray2)
-                            .clipShape(Circle())
+                            .frame(width: 36, height: 36)
+                            .background(Color.darkGray1)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
             }
-            .toolbarBackground(Color.darkGray1, for: .navigationBar)
+            .toolbarBackground(Color.brandBlack, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .onAppear {
                 isTitleFocused = true
@@ -170,7 +171,7 @@ struct AddTaskSheet: View {
                 }
             }
         }
-        .presentationBackground(Color.darkGray1)
+        .presentationBackground(Color.brandBlack)
     }
 
     // MARK: - Subviews
@@ -179,8 +180,9 @@ struct AddTaskSheet: View {
     private var taskNameSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text("TASK NAME")
-                .font(.system(size: Typography.labelSize, weight: .semibold))
+                .font(.system(size: Typography.labelSize, weight: .bold))
                 .foregroundStyle(Color.mediumGray)
+                .tracking(1.0)
 
             TaskNameAutocomplete(
                 existingTasks: existingTasks,
@@ -199,17 +201,18 @@ struct AddTaskSheet: View {
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color.workBlue)
 
-            Text("Editing existing task")
-                .font(.system(size: Typography.bodySize, weight: .medium))
+            Text("EDITING EXISTING TASK")
+                .font(.system(size: Typography.captionSize, weight: .bold))
                 .foregroundStyle(Color.workBlue)
+                .tracking(0.5)
 
             Spacer()
 
             Button {
                 clearEditMode()
             } label: {
-                Text("Create New")
-                    .font(.system(size: Typography.captionSize, weight: .semibold))
+                Text("CREATE NEW")
+                    .font(.system(size: Typography.captionSize, weight: .bold))
                     .foregroundStyle(Color.mediumGray)
                     .padding(.horizontal, Spacing.md)
                     .padding(.vertical, Spacing.xs)
@@ -220,14 +223,19 @@ struct AddTaskSheet: View {
         .padding(Spacing.md)
         .background(Color.workBlue.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.standard)
+                .stroke(Color.workBlue.opacity(0.3), lineWidth: 1)
+        )
     }
 
     /// Start date selection section
     private var startDateSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text("START DATE")
-                .font(.system(size: Typography.labelSize, weight: .semibold))
+                .font(.system(size: Typography.labelSize, weight: .bold))
                 .foregroundStyle(Color.mediumGray)
+                .tracking(1.0)
 
             // Toggle row
             Button {
@@ -244,12 +252,12 @@ struct AddTaskSheet: View {
             } label: {
                 HStack(spacing: Spacing.md) {
                     Image(systemName: useStartDate ? "calendar.badge.clock" : "calendar")
-                        .font(.system(size: 18, weight: .medium))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(useStartDate ? Color.recoveryGreen : Color.mediumGray)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(useStartDate ? formattedStartDate : "Starts Today")
-                            .font(.system(size: Typography.bodySize, weight: .medium))
+                            .font(.system(size: Typography.bodySize, weight: .semibold))
                             .foregroundStyle(Color.pureWhite)
 
                         Text(useStartDate ? "Task will appear on this date" : "Tap to schedule for later")
@@ -278,7 +286,7 @@ struct AddTaskSheet: View {
                     }
                 }
                 .padding(Spacing.lg)
-                .background(Color.darkGray2)
+                .background(Color.darkGray1)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
                 .overlay(
                     RoundedRectangle(cornerRadius: CornerRadius.standard)
@@ -299,7 +307,7 @@ struct AddTaskSheet: View {
                 .tint(Color.recoveryGreen)
                 .colorScheme(.dark)
                 .padding(Spacing.md)
-                .background(Color.darkGray2)
+                .background(Color.darkGray1)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }

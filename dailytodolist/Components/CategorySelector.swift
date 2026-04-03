@@ -39,8 +39,9 @@ struct CategorySelector: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text("CATEGORY")
-                .font(.system(size: Typography.labelSize, weight: .semibold))
+                .font(.system(size: Typography.labelSize, weight: .bold))
                 .foregroundStyle(Color.mediumGray)
+                .tracking(1.0)
 
             LazyVGrid(columns: columns, spacing: Spacing.sm) {
                 // Built-in categories
@@ -150,7 +151,7 @@ struct CategoryButton: View {
             VStack(spacing: Spacing.xs) {
                 ZStack {
                     RoundedRectangle(cornerRadius: CornerRadius.standard)
-                        .fill(isSelected ? color.opacity(0.3) : Color.darkGray2)
+                        .fill(isSelected ? color.opacity(0.3) : Color.darkGray1)
                         .frame(width: ComponentSize.categoryButton, height: ComponentSize.categoryButton)
 
                     RoundedRectangle(cornerRadius: CornerRadius.standard)
@@ -192,7 +193,7 @@ struct AddCategoryButton: View {
             VStack(spacing: Spacing.xs) {
                 ZStack {
                     RoundedRectangle(cornerRadius: CornerRadius.standard)
-                        .fill(Color.darkGray2)
+                        .fill(Color.darkGray1)
                         .frame(width: ComponentSize.categoryButton, height: ComponentSize.categoryButton)
 
                     RoundedRectangle(cornerRadius: CornerRadius.standard)
@@ -217,10 +218,8 @@ struct AddCategoryButton: View {
             }
         }
         .buttonStyle(.plain)
-        .sheet(isPresented: $showPaywall) {
+        .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
         }
     }
 }

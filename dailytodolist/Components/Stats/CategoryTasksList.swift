@@ -77,10 +77,11 @@ struct CategoryTasksList: View {
     var body: some View {
         VStack(spacing: Spacing.md) {
             // Section label
-            Text("TASKS")
-                .font(.system(size: Typography.captionSize, weight: .bold))
+            Text("TASK MASTERY")
+                .font(.system(size: Typography.captionSize, weight: .black))
+                .italic()
                 .foregroundStyle(Color.mediumGray)
-                .tracking(1.0)
+                .tracking(1.2)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             let stats = taskStats
@@ -208,16 +209,27 @@ struct CategoryTaskRow: View {
     var body: some View {
         HStack(spacing: Spacing.md) {
             // Left: title + subtitle
-            VStack(alignment: .leading, spacing: Spacing.xs) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(task.title)
-                    .font(.system(size: Typography.bodySize, weight: .semibold))
+                    .font(.system(size: Typography.bodySize, weight: .bold))
+                    .italic()
                     .foregroundStyle(Color.pureWhite)
                     .lineLimit(1)
 
-                HStack(spacing: Spacing.sm) {
+                HStack(spacing: 4) {
                     if task.recurrenceType != .none {
-                        Text(task.recurrenceDisplayString)
-                            .font(.system(size: Typography.captionSize, weight: .medium))
+                        Text(task.recurrenceDisplayString.uppercased())
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(Color.performancePurple)
+                    }
+                    if let category = task.category, !category.isEmpty {
+                        if task.recurrenceType != .none {
+                            Text("•")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Color.mediumGray.opacity(0.4))
+                        }
+                        Text(category.uppercased())
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(Color.mediumGray)
                     }
                 }
@@ -255,13 +267,11 @@ struct CategoryTaskRow: View {
                 }
 
                 // Reps count
-                Text("\(completionCount)")
-                    .font(.system(size: Typography.labelSize, weight: .bold))
+                Text(String(format: "%02d", completionCount))
+                    .font(.system(size: Typography.bodySize, weight: .bold))
+                    .italic()
                     .foregroundStyle(Color.pureWhite)
-                    .frame(minWidth: 28)
-                    .padding(.vertical, Spacing.xs)
-                    .background(Color.darkGray2)
-                    .clipShape(Capsule())
+                    .monospacedDigit()
             }
         }
         .padding(.horizontal, Spacing.lg)

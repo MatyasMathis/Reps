@@ -2,7 +2,8 @@
 //  MediumWidgetView.swift
 //  TodayTasksWidget
 //
-//  Purpose: Medium widget view showing progress bar and 3 tasks.
+//  Purpose: Medium 4x2 widget — snapshot view with progress and quick stats.
+//  Design: SNAPSHOT — left big %, right two info cards (next up + streak)
 //
 
 import SwiftUI
@@ -16,63 +17,108 @@ struct MediumWidgetView: View {
         return Double(entry.completedCount) / Double(entry.totalCount)
     }
 
-    private var displayTasks: [WidgetTask] {
-        Array(entry.tasks.prefix(2))
-    }
-
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Header row
-            HStack {
-                Text("DAILY PROGRESS")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Color.widgetMediumGray)
-
+        HStack(alignment: .top, spacing: 14) {
+            // Left column: REPS label + big % + progress bar
+            VStack(alignment: .leading, spacing: 0) {
+                Text("REPS")
+                    .font(.system(size: 11, weight: .black))
+                    .italic()
+                    .foregroundStyle(Color.widgetRecoveryGreen)
+                    .tracking(1.5)
 
                 Spacer()
 
-                Text("\(entry.completedCount)/\(entry.totalCount)")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(Color.widgetPureWhite)
-
                 Text("\(Int(percentage * 100))%")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(Color.widgetRecoveryGreen)
-            }
+                    .font(.system(size: 58, weight: .black))
+                    .italic()
+                    .foregroundStyle(Color.widgetPureWhite)
+                    .monospacedDigit()
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
 
-            // Progress bar
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.widgetDarkGray2)
+                Spacer(minLength: 10)
 
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.widgetRecoveryGreen)
-                        .frame(width: geometry.size.width * percentage)
-                }
-            }
-            .frame(height: 6)
-
-            // Task list
-            if displayTasks.isEmpty {
-                HStack {
-                    Spacer()
-                    Text("All done for today!")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.widgetMediumGray)
-                    Spacer()
-                }
-                .padding(.top, 8)
-            } else {
-                VStack(spacing: 6) {
-                    ForEach(displayTasks) { task in
-                        WidgetTaskRow(task: task, compact: true)
+                // Progress bar
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Color.widgetDarkGray2)
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Color.widgetRecoveryGreen)
+                            .frame(width: geo.size.width * percentage)
                     }
                 }
+                .frame(height: 5)
+            }
+            .frame(maxWidth: .infinity)
+
+            // Right column: two info cards
+            VStack(spacing: 8) {
+                // Next up
+                if let nextTask = entry.tasks.first {
+                    MediumInfoCard(
+                        icon: "checkmark.circle.fill",
+                        iconColor: .widgetRecoveryGreen,
+                        title: nextTask.title,
+                        subtitle: "NEXT UP"
+                    )
+                } else {
+                    MediumInfoCard(
+                        icon: "checkmark.circle.fill",
+                        iconColor: .widgetRecoveryGreen,
+                        title: "All done!",
+                        subtitle: "NEXT UP"
+                    )
+                }
+
+                // Current streak
+                MediumInfoCard(
+                    icon: "flame.fill",
+                    iconColor: .widgetPersonalOrange,
+                    title: "\(String(format: "%02d", entry.currentStreak)) Days",
+                    subtitle: "CURRENT STREAK"
+                )
+            }
+            .frame(width: 155)
+        }
+        .widgetURL(URL(string: "reps://tasks"))
+    }
+}
+
+// MARK: - Info Card
+
+private struct MediumInfoCard: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(iconColor)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 13, weight: .bold))
+                    .italic()
+                    .foregroundStyle(Color.widgetPureWhite)
+                    .lineLimit(1)
+
+                Text(subtitle)
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(Color.widgetMediumGray)
+                    .tracking(0.5)
             }
 
             Spacer(minLength: 0)
         }
-        .widgetURL(URL(string: "reps://tasks"))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.widgetDarkGray1)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

@@ -47,14 +47,15 @@ struct FrequencyTypeSelector: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text("FREQUENCY")
-                .font(.system(size: Typography.labelSize, weight: .semibold))
+                .font(.system(size: Typography.labelSize, weight: .bold))
                 .foregroundStyle(Color.mediumGray)
+                .tracking(1.0)
 
             VStack(spacing: 0) {
                 ForEach(RecurrenceType.allCases, id: \.self) { type in
                     if type != RecurrenceType.allCases.first {
                         Divider()
-                            .background(Color.darkGray1)
+                            .background(Color.darkGray2)
                     }
 
                     RecurrenceTypeOption(
@@ -67,7 +68,7 @@ struct FrequencyTypeSelector: View {
                     }
                 }
             }
-            .background(Color.darkGray2)
+            .background(Color.darkGray1)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
         }
     }
@@ -147,10 +148,8 @@ struct RecurrenceTypeOption: View {
             .opacity(isLocked ? 0.6 : 1.0)
         }
         .buttonStyle(.plain)
-        .sheet(isPresented: $showPaywall) {
+        .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
         }
     }
 }
@@ -175,8 +174,9 @@ struct WeekdaySelector: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text("SELECT DAYS")
-                .font(.system(size: Typography.labelSize, weight: .semibold))
+                .font(.system(size: Typography.labelSize, weight: .bold))
                 .foregroundStyle(Color.mediumGray)
+                .tracking(1.0)
 
             HStack(spacing: Spacing.sm) {
                 ForEach(weekdays, id: \.value) { weekday in
@@ -220,11 +220,11 @@ struct WeekdayButton: View {
                 .font(.system(size: Typography.bodySize, weight: .semibold))
                 .foregroundStyle(isSelected ? Color.pureWhite : Color.mediumGray)
                 .frame(width: 40, height: 40)
-                .background(isSelected ? Color.recoveryGreen : Color.darkGray2)
+                .background(isSelected ? Color.recoveryGreen : Color.darkGray1)
                 .clipShape(Circle())
                 .overlay(
                     Circle()
-                        .stroke(isSelected ? Color.recoveryGreen : Color.darkGray1, lineWidth: 2)
+                        .stroke(isSelected ? Color.recoveryGreen : Color.darkGray2, lineWidth: 2)
                 )
         }
         .buttonStyle(.plain)
@@ -242,8 +242,9 @@ struct MonthDaySelector: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text("SELECT DATES")
-                .font(.system(size: Typography.labelSize, weight: .semibold))
+                .font(.system(size: Typography.labelSize, weight: .bold))
                 .foregroundStyle(Color.mediumGray)
+                .tracking(1.0)
 
             LazyVGrid(columns: columns, spacing: Spacing.sm) {
                 ForEach(1...31, id: \.self) { day in
@@ -287,11 +288,11 @@ struct MonthDayButton: View {
                 .font(.system(size: Typography.captionSize, weight: .semibold))
                 .foregroundStyle(isSelected ? Color.pureWhite : Color.mediumGray)
                 .frame(width: 36, height: 36)
-                .background(isSelected ? Color.recoveryGreen : Color.darkGray2)
+                .background(isSelected ? Color.recoveryGreen : Color.darkGray1)
                 .clipShape(Circle())
                 .overlay(
                     Circle()
-                        .stroke(isSelected ? Color.recoveryGreen : Color.darkGray1, lineWidth: 1)
+                        .stroke(isSelected ? Color.recoveryGreen : Color.darkGray2, lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)

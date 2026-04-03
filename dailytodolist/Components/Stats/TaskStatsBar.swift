@@ -212,6 +212,37 @@ struct StatItem: View {
     }
 }
 
+// MARK: - Stat Grid Card
+
+/// Individual card for the 2x2 stats grid in StatsView
+struct StatGridCard: View {
+    let label: String
+    let value: String
+    let color: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text(label)
+                .font(.system(size: Typography.captionSize, weight: .bold))
+                .foregroundStyle(Color.mediumGray)
+                .tracking(1.0)
+
+            Text(value)
+                .font(.system(size: 44, weight: .black))
+                .italic()
+                .foregroundStyle(color)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .monospacedDigit()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, Spacing.lg)
+        .padding(.vertical, Spacing.lg)
+        .background(Color.darkGray1)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large))
+    }
+}
+
 // MARK: - Preview
 
 #Preview("Task Stats Bar") {

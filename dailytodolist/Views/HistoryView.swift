@@ -141,7 +141,6 @@ struct HistoryView: View {
                 Color.brandBlack.ignoresSafeArea()
 
                 VStack(spacing: Spacing.lg) {
-                    // Calendar (always expanded in sheet)
                     calendarContent
                         .padding(.horizontal, Spacing.lg)
 
@@ -149,14 +148,26 @@ struct HistoryView: View {
                 }
                 .padding(.top, Spacing.md)
             }
-            .navigationTitle("Jump to Date")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("JUMP TO DATE")
+                        .font(.system(size: 15, weight: .black))
+                        .italic()
+                        .foregroundStyle(Color.pureWhite)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
+                    Button {
                         showCalendarSheet = false
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(Color.mediumGray)
+                            .frame(width: 36, height: 36)
+                            .background(Color.darkGray1)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .foregroundStyle(Color.recoveryGreen)
+                    .buttonStyle(.plain)
                 }
             }
             .toolbarBackground(Color.brandBlack, for: .navigationBar)
@@ -187,13 +198,15 @@ struct HistoryView: View {
 
                 VStack(spacing: 2) {
                     Text(monthTitle)
-                        .font(.system(size: Typography.captionSize, weight: .bold))
+                        .font(.system(size: Typography.captionSize, weight: .black))
+                        .italic()
                         .foregroundStyle(Color.pureWhite)
                         .tracking(1.2)
 
-                    Text("\(completionCountForMonth) completion\(completionCountForMonth == 1 ? "" : "s")")
-                        .font(.system(size: Typography.captionSize, weight: .medium))
+                    Text("\(completionCountForMonth) COMPLETION\(completionCountForMonth == 1 ? "" : "S")")
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(Color.mediumGray)
+                        .tracking(0.5)
                 }
 
                 Spacer()
@@ -407,7 +420,7 @@ private struct CalendarDayCell: View {
         } else if day.isFuture {
             return Color.clear
         } else {
-            return Color.darkGray2
+            return Color.darkGray1
         }
     }
 

@@ -100,7 +100,7 @@ struct EditTaskSheet: View {
         NavigationStack {
             ZStack {
                 // Background
-                Color.darkGray1.ignoresSafeArea()
+                Color.brandBlack.ignoresSafeArea()
 
                 ScrollView {
                     VStack(spacing: Spacing.section) {
@@ -123,7 +123,7 @@ struct EditTaskSheet: View {
                         }
 
                         // Save Button
-                        Button("Save Changes") {
+                        Button("SAVE CHANGES") {
                             saveTask()
                         }
                         .buttonStyle(.primary)
@@ -131,18 +131,27 @@ struct EditTaskSheet: View {
                         .padding(.top, Spacing.sm)
 
                         // Delete Button
-                        Button(role: .destructive) {
+                        Button {
                             showDeleteConfirmation = true
                         } label: {
-                            HStack {
+                            HStack(spacing: Spacing.sm) {
                                 Image(systemName: "trash")
-                                Text("Delete Task")
+                                    .font(.system(size: 14, weight: .bold))
+                                Text("DELETE TASK")
+                                    .font(.system(size: Typography.bodySize, weight: .bold))
+                                    .tracking(0.5)
                             }
-                            .font(.system(size: Typography.bodySize, weight: .medium))
                             .foregroundStyle(Color.strainRed)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, Spacing.md)
+                            .background(Color.strainRed.opacity(0.08))
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: CornerRadius.standard)
+                                    .stroke(Color.strainRed.opacity(0.3), lineWidth: 1)
+                            )
                         }
+                        .buttonStyle(.plain)
                     }
                     .padding(Spacing.xl)
                 }
@@ -150,8 +159,9 @@ struct EditTaskSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Edit Task")
-                        .font(.system(size: Typography.h3Size, weight: .bold))
+                    Text("EDIT TASK")
+                        .font(.system(size: 15, weight: .black))
+                        .italic()
                         .foregroundStyle(Color.pureWhite)
                 }
 
@@ -160,15 +170,15 @@ struct EditTaskSheet: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.system(size: 13, weight: .bold))
                             .foregroundStyle(Color.mediumGray)
-                            .frame(width: 30, height: 30)
-                            .background(Color.darkGray2)
-                            .clipShape(Circle())
+                            .frame(width: 36, height: 36)
+                            .background(Color.darkGray1)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
             }
-            .toolbarBackground(Color.darkGray1, for: .navigationBar)
+            .toolbarBackground(Color.brandBlack, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .onAppear {
                 loadTaskData()
@@ -193,7 +203,7 @@ struct EditTaskSheet: View {
                 Text("Are you sure you want to delete this task? This action cannot be undone.")
             }
         }
-        .presentationBackground(Color.darkGray1)
+        .presentationBackground(Color.brandBlack)
     }
 
     // MARK: - Subviews
@@ -202,15 +212,16 @@ struct EditTaskSheet: View {
     private var taskNameSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text("TASK NAME")
-                .font(.system(size: Typography.labelSize, weight: .semibold))
+                .font(.system(size: Typography.labelSize, weight: .bold))
                 .foregroundStyle(Color.mediumGray)
+                .tracking(1.0)
 
             TextField("", text: $title, prompt: Text("Enter task name...")
                 .foregroundStyle(Color.mediumGray))
-                .font(.system(size: Typography.h4Size, weight: .medium))
+                .font(.system(size: Typography.h4Size, weight: .semibold))
                 .foregroundStyle(Color.pureWhite)
                 .padding(Spacing.lg)
-                .background(Color.darkGray2)
+                .background(Color.darkGray1)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
                 .overlay(
                     RoundedRectangle(cornerRadius: CornerRadius.standard)
@@ -224,8 +235,9 @@ struct EditTaskSheet: View {
     private var startDateSection: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text("START DATE")
-                .font(.system(size: Typography.labelSize, weight: .semibold))
+                .font(.system(size: Typography.labelSize, weight: .bold))
                 .foregroundStyle(Color.mediumGray)
+                .tracking(1.0)
 
             // Toggle row
             Button {
@@ -242,12 +254,12 @@ struct EditTaskSheet: View {
             } label: {
                 HStack(spacing: Spacing.md) {
                     Image(systemName: useStartDate ? "calendar.badge.clock" : "calendar")
-                        .font(.system(size: 18, weight: .medium))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(useStartDate ? Color.recoveryGreen : Color.mediumGray)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(useStartDate ? formattedStartDate : "Starts Today")
-                            .font(.system(size: Typography.bodySize, weight: .medium))
+                            .font(.system(size: Typography.bodySize, weight: .semibold))
                             .foregroundStyle(Color.pureWhite)
 
                         Text(useStartDate ? "Task will appear on this date" : "Tap to schedule for later")
@@ -276,7 +288,7 @@ struct EditTaskSheet: View {
                     }
                 }
                 .padding(Spacing.lg)
-                .background(Color.darkGray2)
+                .background(Color.darkGray1)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
                 .overlay(
                     RoundedRectangle(cornerRadius: CornerRadius.standard)
@@ -297,7 +309,7 @@ struct EditTaskSheet: View {
                 .tint(Color.recoveryGreen)
                 .colorScheme(.dark)
                 .padding(Spacing.md)
-                .background(Color.darkGray2)
+                .background(Color.darkGray1)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }

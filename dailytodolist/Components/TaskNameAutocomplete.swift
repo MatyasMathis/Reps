@@ -74,10 +74,10 @@ struct TaskNameAutocomplete: View {
             // Text field
             TextField("", text: $text, prompt: Text("Enter task name...")
                 .foregroundStyle(Color.mediumGray))
-                .font(.system(size: Typography.h4Size, weight: .medium))
+                .font(.system(size: Typography.h4Size, weight: .semibold))
                 .foregroundStyle(Color.pureWhite)
                 .padding(Spacing.lg)
-                .background(Color.darkGray2)
+                .background(Color.darkGray1)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
                 .overlay(
                     RoundedRectangle(cornerRadius: CornerRadius.standard)

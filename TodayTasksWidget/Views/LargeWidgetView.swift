@@ -2,7 +2,8 @@
 //  LargeWidgetView.swift
 //  TodayTasksWidget
 //
-//  Purpose: Large widget view showing progress card and up to 5 tasks.
+//  Purpose: Large 4x4 widget — rhythm tracker with task list.
+//  Design: RHYTHM TRACKER — header, X/Y Completed + %, progress bar, task rows
 //
 
 import SwiftUI
@@ -17,54 +18,58 @@ struct LargeWidgetView: View {
     }
 
     private var displayTasks: [WidgetTask] {
-        Array(entry.tasks.prefix(5))
+        Array(entry.tasks.prefix(4))
     }
 
     private var remainingCount: Int {
-        max(0, entry.tasks.count - 5)
+        max(0, entry.tasks.count - 4)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Progress card
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text("DAILY PROGRESS")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(Color.widgetMediumGray)
+        VStack(alignment: .leading, spacing: 0) {
+            // Section label
+            Text("DAILY RHYTHM")
+                .font(.system(size: 11, weight: .black))
+                .italic()
+                .foregroundStyle(Color.widgetMediumGray)
+                .tracking(1.5)
 
-
-                    Spacer()
-                }
-
-                HStack {
-                    Text("\(entry.completedCount)/\(entry.totalCount) completed")
-                        .font(.system(size: 18, weight: .bold))
+            // Completion count + percentage
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    Text("\(entry.completedCount)/\(entry.totalCount)")
+                        .font(.system(size: 34, weight: .black))
+                        .italic()
                         .foregroundStyle(Color.widgetPureWhite)
-
-                    Spacer()
-
-                    Text("\(Int(percentage * 100))%")
-                        .font(.system(size: 18, weight: .bold))
+                        .monospacedDigit()
+                    Text(" Completed")
+                        .font(.system(size: 17, weight: .semibold))
+                        .italic()
                         .foregroundStyle(Color.widgetRecoveryGreen)
                 }
 
-                // Progress bar
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(Color.widgetDarkGray2)
+                Spacer()
 
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(Color.widgetRecoveryGreen)
-                            .frame(width: geometry.size.width * percentage)
-                    }
-                }
-                .frame(height: 6)
+                Text("\(Int(percentage * 100))%")
+                    .font(.system(size: 34, weight: .black))
+                    .italic()
+                    .foregroundStyle(Color.widgetRecoveryGreen)
+                    .monospacedDigit()
             }
-            .padding(10)
-            .background(Color.widgetDarkGray1)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .padding(.top, 6)
+
+            // Progress bar
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.widgetDarkGray2)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.widgetRecoveryGreen)
+                        .frame(width: geo.size.width * percentage)
+                }
+            }
+            .frame(height: 6)
+            .padding(.top, 10)
 
             // Task list
             if displayTasks.isEmpty {
@@ -73,28 +78,30 @@ struct LargeWidgetView: View {
                     Spacer()
                     VStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 40))
+                            .font(.system(size: 32))
                             .foregroundStyle(Color.widgetRecoveryGreen)
                         Text("All done for today!")
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.system(size: 14, weight: .semibold))
+                            .italic()
                             .foregroundStyle(Color.widgetMediumGray)
                     }
                     Spacer()
                 }
                 Spacer()
             } else {
-                VStack(spacing: 6) {
+                VStack(spacing: 8) {
                     ForEach(displayTasks) { task in
-                        WidgetTaskRow(task: task, compact: false)
+                        WidgetTaskRow(task: task)
                     }
                 }
+                .padding(.top, 14)
 
                 if remainingCount > 0 {
-                    Text("+ \(remainingCount) more task\(remainingCount == 1 ? "" : "s")")
-                        .font(.system(size: 12, weight: .medium))
+                    Text("+ \(remainingCount) more")
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(Color.widgetMediumGray)
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, 2)
+                        .padding(.top, 4)
                 }
             }
 

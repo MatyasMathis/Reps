@@ -2,8 +2,8 @@
 //  CalendarShareSheet.swift
 //  Reps
 //
-//  Purpose: Share sheet for category calendar cards with photo picker
-//  Design: Strava-inspired — photo background option, matching existing share sheet pattern
+//  Purpose: Share sheet for category calendar cards with background mode picker
+//  Design: SOLID / CLEAR / PHOTO modes, Strava-inspired
 //
 
 import SwiftUI
@@ -12,8 +12,8 @@ import PhotosUI
 
 /// Sheet for customizing and sharing a category's monthly completion calendar.
 ///
-/// User can pick a background photo (camera or gallery), preview
-/// the card live, and share via the system share sheet.
+/// User can choose solid, transparent, or photo background, preview
+/// the card live, and share or save it.
 struct CalendarShareSheet: View {
 
     // MARK: - Environment
@@ -32,13 +32,40 @@ struct CalendarShareSheet: View {
 
     // MARK: - State
 
+    @State private var bgMode: BGMode = .solid
     @State private var selectedPhoto: UIImage?
     @State private var photosPickerItem: PhotosPickerItem?
     @State private var showCamera = false
 
-    // MARK: - Computed
+    // MARK: - Background mode
+
+    private enum BGMode: CaseIterable {
+        case solid, transparent, photo
+        var label: String {
+            switch self {
+            case .solid: "SOLID"
+            case .transparent: "CLEAR"
+            case .photo: "PHOTO"
+            }
+        }
+        var icon: String {
+            switch self {
+            case .solid: "rectangle.fill"
+            case .transparent: "square.dashed"
+            case .photo: "photo.fill"
+            }
+        }
+    }
 
     private var categoryColor: Color { Color(hex: categoryColorHex) }
+
+    private var shareBackground: ShareBackground {
+        switch bgMode {
+        case .solid: return .solid
+        case .transparent: return .transparent
+        case .photo: return selectedPhoto.map { .photo($0) } ?? .solid
+        }
+    }
 
     private var cardView: ShareableCalendarCard {
         ShareableCalendarCard(
@@ -49,7 +76,7 @@ struct CalendarShareSheet: View {
             displayedMonth: displayedMonth,
             streak: streak,
             completionCount: completionCount,
-            backgroundImage: selectedPhoto
+            background: shareBackground
         )
     }
 
@@ -67,29 +94,43 @@ struct CalendarShareSheet: View {
 
                     Spacer()
 
-                    // Photo source buttons
-                    photoButtons
-                        .padding(.bottom, Spacing.xl)
+                    // Photo pickers (only in photo mode)
+                    if bgMode == .photo {
+                        photoPickerButtons
+                            .padding(.bottom, Spacing.lg)
+                            .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    }
 
-                    // Share button
-                    shareButton
+                    // Background mode selector
+                    bgModeSelector
+                        .padding(.horizontal, Spacing.xl)
+                        .padding(.bottom, Spacing.md)
+
+                    // Action buttons
+                    actionButtons
                         .padding(.horizontal, Spacing.xl)
                         .padding(.bottom, Spacing.xxl)
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: bgMode)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { dismiss() } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: Typography.bodySize, weight: .semibold))
-                            .foregroundStyle(Color.mediumGray)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Color.pureWhite)
+                            .frame(width: 36, height: 36)
+                            .background(Color.darkGray1)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
+                    .buttonStyle(.plain)
                 }
 
                 ToolbarItem(placement: .principal) {
-                    Text("Share Calendar")
-                        .font(.system(size: Typography.h4Size, weight: .bold))
+                    Text("SHARE CALENDAR")
+                        .font(.system(size: 15, weight: .black))
+                        .italic()
                         .foregroundStyle(Color.pureWhite)
                 }
             }
@@ -122,7 +163,34 @@ struct CalendarShareSheet: View {
             .shadowLevel1()
     }
 
-    private var photoButtons: some View {
+    private var bgModeSelector: some View {
+        HStack(spacing: 0) {
+            ForEach(BGMode.allCases, id: \.label) { mode in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { bgMode = mode }
+                } label: {
+                    HStack(spacing: Spacing.xs) {
+                        Image(systemName: mode.icon)
+                            .font(.system(size: 12, weight: .bold))
+                        Text(mode.label)
+                            .font(.system(size: 12, weight: .bold))
+                            .tracking(0.5)
+                    }
+                    .foregroundStyle(bgMode == mode ? Color.brandBlack : Color.mediumGray)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Spacing.sm)
+                    .background(bgMode == mode ? categoryColor : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard - 2))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(4)
+        .background(Color.darkGray1)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+    }
+
+    private var photoPickerButtons: some View {
         HStack(spacing: Spacing.md) {
             // Camera
             Button { showCamera = true } label: {
@@ -135,7 +203,7 @@ struct CalendarShareSheet: View {
                 }
                 .foregroundStyle(Color.pureWhite)
                 .frame(width: 80, height: 64)
-                .background(Color.darkGray2)
+                .background(Color.darkGray1)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
             }
 
@@ -150,7 +218,7 @@ struct CalendarShareSheet: View {
                 }
                 .foregroundStyle(Color.pureWhite)
                 .frame(width: 80, height: 64)
-                .background(Color.darkGray2)
+                .background(Color.darkGray1)
                 .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
             }
 
@@ -171,31 +239,58 @@ struct CalendarShareSheet: View {
                     }
                     .foregroundStyle(Color.strainRed)
                     .frame(width: 80, height: 64)
-                    .background(Color.darkGray2)
+                    .background(Color.darkGray1)
                     .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
                 }
             }
         }
     }
 
-    private var shareButton: some View {
-        Button {
-            ShareService.renderAndShare(
-                view: cardView,
-                size: CGSize(width: 1080, height: 1920)
-            )
-        } label: {
-            HStack(spacing: Spacing.sm) {
-                Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 14, weight: .bold))
-                Text("Share")
-                    .font(.system(size: Typography.bodySize, weight: .bold))
+    private var actionButtons: some View {
+        HStack(spacing: Spacing.md) {
+            // Save to Photos
+            Button {
+                let card = cardView
+                Task { @MainActor in
+                    if let image = ShareService.renderImage(from: card, size: CGSize(width: 1080, height: 1920)) {
+                        ShareService.saveToPhotos(image: image)
+                    }
+                }
+            } label: {
+                HStack(spacing: Spacing.xs) {
+                    Image(systemName: "square.and.arrow.down")
+                        .font(.system(size: 14, weight: .bold))
+                    Text("SAVE")
+                        .font(.system(size: Typography.bodySize, weight: .bold))
+                        .tracking(0.5)
+                }
+                .foregroundStyle(Color.pureWhite)
+                .frame(maxWidth: .infinity)
+                .frame(height: ComponentSize.buttonHeight)
+                .background(Color.darkGray1)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
             }
-            .foregroundStyle(Color.brandBlack)
-            .frame(maxWidth: .infinity)
-            .frame(height: ComponentSize.buttonHeight)
-            .background(categoryColor)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+
+            // Share
+            Button {
+                ShareService.renderAndShare(
+                    view: cardView,
+                    size: CGSize(width: 1080, height: 1920)
+                )
+            } label: {
+                HStack(spacing: Spacing.xs) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 14, weight: .bold))
+                    Text("SHARE")
+                        .font(.system(size: Typography.bodySize, weight: .bold))
+                        .tracking(0.5)
+                }
+                .foregroundStyle(Color.brandBlack)
+                .frame(maxWidth: .infinity)
+                .frame(height: ComponentSize.buttonHeight)
+                .background(categoryColor)
+                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
+            }
         }
     }
 }

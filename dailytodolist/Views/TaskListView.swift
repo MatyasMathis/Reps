@@ -215,10 +215,8 @@ struct TaskListView: View {
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
             }
-            .sheet(isPresented: $showSharePaywall) {
+            .fullScreenCover(isPresented: $showSharePaywall) {
                 PaywallView()
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
             }
             .onAppear {
                 OnboardingService.createStarterTasksIfNeeded(modelContext: modelContext)

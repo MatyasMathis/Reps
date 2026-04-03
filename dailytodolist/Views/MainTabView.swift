@@ -149,49 +149,55 @@ struct MainTabView: View {
             .ignoresSafeArea(.keyboard)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                // Leading: tab title (instant swap, no animation)
+                // Leading: settings gear (today) or nothing (history)
                 ToolbarItem(placement: .topBarLeading) {
                     Group {
                         if selectedTab == .today {
-                            Text("Today")
-                        } else {
-                            Text("History")
+                            Button { showSettings = true } label: {
+                                Image(systemName: "gearshape")
+                                    .font(.system(size: 15, weight: .medium))
+                                    .foregroundStyle(Color.mediumGray)
+                                    .frame(width: 36, height: 36)
+                                    .background(Color.darkGray1)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
-                    .font(.system(size: Typography.h3Size, weight: .bold))
-                    .foregroundStyle(Color.pureWhite)
-                    .fixedSize()
                     .transaction { $0.animation = nil }
                 }
 
-                // Trailing: tab-specific items (instant swap)
+                // Trailing: date+streak (today) or Stats pill (history)
                 ToolbarItem(placement: .topBarTrailing) {
                     Group {
                         if selectedTab == .today {
-                            HStack(spacing: Spacing.md) {
-                                Button { showSettings = true } label: {
-                                    Image(systemName: "gearshape")
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundStyle(Color.mediumGray)
-                                }
+                            Button { showYearInPixels = true } label: {
+                                HStack(spacing: Spacing.xs) {
+                                    Text(formattedDate.uppercased())
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundStyle(Color.pureWhite.opacity(0.7))
 
-                                Text(formattedDate)
-                                    .font(.system(size: Typography.bodySize, weight: .medium))
-                                    .foregroundStyle(Color.mediumGray)
-
-                                if currentStreak > 0 {
-                                    Button { showYearInPixels = true } label: {
-                                        StreakBadge(count: currentStreak)
+                                    if currentStreak > 0 {
+                                        HStack(spacing: 3) {
+                                            Image(systemName: "flame.fill")
+                                                .font(.system(size: 10, weight: .bold))
+                                                .foregroundStyle(Color.personalOrange)
+                                            Text("\(currentStreak)")
+                                                .font(.system(size: 11, weight: .bold))
+                                                .foregroundStyle(Color.pureWhite)
+                                        }
                                     }
                                 }
                             }
                         } else {
+                            // Stats pill
                             Button { showStats = true } label: {
                                 HStack(spacing: Spacing.xs) {
                                     Image(systemName: "chart.bar.fill")
-                                    Text("Stats")
+                                        .font(.system(size: 12, weight: .bold))
+                                    Text("STATS")
+                                        .font(.system(size: 12, weight: .bold))
                                 }
-                                .font(.system(size: Typography.bodySize, weight: .medium))
                                 .foregroundStyle(Color.recoveryGreen)
                             }
                         }
@@ -239,20 +245,18 @@ struct MainTabView: View {
                     .zIndex(10)
                 }
             }
-            .sheet(isPresented: $showHistoryPaywall) {
+            .fullScreenCover(isPresented: $showHistoryPaywall) {
                 PaywallView()
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
-            .sheet(isPresented: $showYearInPixels) {
+            .fullScreenCover(isPresented: $showYearInPixels) {
                 YearInPixelsView()
             }
-            .sheet(isPresented: $showStats) {
+            .fullScreenCover(isPresented: $showStats) {
                 StatsView()
             }
         }

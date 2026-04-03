@@ -35,7 +35,8 @@ struct TodayTasksWidget: Widget {
             WidgetTask(id: UUID(), title: "Review PRs", category: "Work", isRecurring: false, isCompletedToday: true, customCategoryColorHex: nil)
         ],
         completedCount: 1,
-        totalCount: 2
+        totalCount: 2,
+        currentStreak: 7
     )
 }
 
@@ -50,7 +51,8 @@ struct TodayTasksWidget: Widget {
             WidgetTask(id: UUID(), title: "Buy groceries", category: "Shopping", isRecurring: false, isCompletedToday: true, customCategoryColorHex: nil)
         ],
         completedCount: 1,
-        totalCount: 3
+        totalCount: 3,
+        currentStreak: 7
     )
 }
 
@@ -67,6 +69,7 @@ struct TodayTasksWidget: Widget {
             WidgetTask(id: UUID(), title: "Call mom", category: "Personal", isRecurring: false, isCompletedToday: true, customCategoryColorHex: nil)
         ],
         completedCount: 2,
-        totalCount: 5
+        totalCount: 5,
+        currentStreak: 7
     )
 }

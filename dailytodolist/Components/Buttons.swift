@@ -129,10 +129,12 @@ struct FloatingActionButton: View {
 
 // MARK: - Checkbox Button
 
-/// Custom checkbox for task completion
+/// Custom checkbox for task completion — rounded square style
 struct CheckboxButton: View {
     let isChecked: Bool
     let action: () -> Void
+
+    private let size: CGFloat = 30
 
     var body: some View {
         Button(action: {
@@ -140,25 +142,35 @@ struct CheckboxButton: View {
             action()
         }) {
             ZStack {
-                Circle()
-                    .stroke(isChecked ? Color.recoveryGreen : Color.pureWhite, lineWidth: 2)
-                    .frame(width: ComponentSize.checkbox, height: ComponentSize.checkbox)
-
                 if isChecked {
-                    Circle()
+                    // Filled green rounded square
+                    RoundedRectangle(cornerRadius: 8)
                         .fill(Color.recoveryGreen)
-                        .frame(width: ComponentSize.checkbox, height: ComponentSize.checkbox)
+                        .frame(width: size, height: size)
 
                     Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(Color.pureWhite)
+                        .font(.system(size: 13, weight: .black))
+                        .foregroundStyle(Color.brandBlack)
+                } else {
+                    // Dark rounded square with subtle border + inner dot
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(hex: "252525"))
+                        .frame(width: size, height: size)
+
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(Color.pureWhite.opacity(0.12), lineWidth: 1.5)
+                        .frame(width: size, height: size)
+
+                    Circle()
+                        .fill(Color.pureWhite.opacity(0.18))
+                        .frame(width: 7, height: 7)
                 }
             }
             .frame(width: 44, height: 44)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isChecked)
+        .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isChecked)
     }
 }
 

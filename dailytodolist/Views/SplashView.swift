@@ -21,59 +21,58 @@ struct SplashView: View {
 
     // MARK: - Body
 
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.0"
+        return "VERSION \(version) • PROFESSIONAL EDITION"
+    }
+
     var body: some View {
         ZStack {
-            // Background
+            // Background with subtle green radial glow
             Color.brandBlack
                 .ignoresSafeArea()
 
-            VStack(spacing: 24) {
+            // Subtle teal-green radial gradient from center
+            RadialGradient(
+                colors: [
+                    Color(hex: "0D2B22").opacity(0.9),
+                    Color.brandBlack
+                ],
+                center: .center,
+                startRadius: 0,
+                endRadius: 420
+            )
+            .ignoresSafeArea()
+            .opacity(glowOpacity)
+
+            VStack(spacing: 0) {
                 Spacer()
 
-                // Logo container
-                ZStack {
-                    // Glow effect behind logo
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [
-                                    Color.recoveryGreen.opacity(0.3),
-                                    Color.recoveryGreen.opacity(0.1),
-                                    Color.clear
-                                ],
-                                center: .center,
-                                startRadius: 20,
-                                endRadius: 80
-                            )
-                        )
-                        .frame(width: 160, height: 160)
-                        .opacity(glowOpacity)
-
-                    // Logo
-                    Image("Logo")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 120, height: 120)
-                        .clipShape(RoundedRectangle(cornerRadius: 24))
+                // REPS + tagline
+                VStack(spacing: 12) {
+                    Text("REPS")
+                        .font(.system(size: 64, weight: .black))
+                        .italic()
+                        .foregroundStyle(Color.pureWhite)
                         .scaleEffect(logoScale)
                         .opacity(logoOpacity)
+
+                    Text("LOCK IN.")
+                        .font(.system(size: 14, weight: .semibold))
+                        .tracking(3)
+                        .foregroundStyle(Color.pureWhite.opacity(0.4))
+                        .opacity(textOpacity)
                 }
 
-                // App name
-                VStack(spacing: 8) {
-                    Text("REPS")
-                        .font(.system(size: 42, weight: .black, design: .rounded))
-                        .tracking(4)
-                        .foregroundStyle(Color.pureWhite)
-
-                    Text("Lock in.")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(Color.mediumGray)
-                }
-                .opacity(textOpacity)
-
                 Spacer()
-                Spacer()
+
+                // Version footer
+                Text(appVersion)
+                    .font(.system(size: 10, weight: .medium))
+                    .tracking(1.5)
+                    .foregroundStyle(Color.pureWhite.opacity(0.25))
+                    .padding(.bottom, 48)
+                    .opacity(textOpacity)
             }
         }
         .onAppear {
