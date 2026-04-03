@@ -24,7 +24,7 @@ struct ShareableCalendarCard: View {
     let displayedMonth: Date
     let streak: Int
     let completionCount: Int
-    let backgroundImage: UIImage?
+    var background: ShareBackground = .solid
 
     // MARK: - Constants
 
@@ -85,26 +85,7 @@ struct ShareableCalendarCard: View {
     var body: some View {
         ZStack {
             // Background
-            if let image = backgroundImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: cardWidth, height: cardHeight)
-                    .clipped()
-
-                // Heavy overlay for readability
-                LinearGradient(
-                    colors: [
-                        Color.black.opacity(0.3),
-                        Color.black.opacity(0.4),
-                        Color.black.opacity(0.85)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            } else {
-                bgBlack
-            }
+            backgroundLayer
 
             // Content — pushed to bottom half, Strava-style
             VStack(spacing: 0) {
@@ -168,7 +149,7 @@ struct ShareableCalendarCard: View {
                 .padding(.vertical, 48)
                 .background(
                     RoundedRectangle(cornerRadius: 32)
-                        .fill(.black.opacity(backgroundImage != nil ? 0.55 : 0.3))
+                        .fill(.black.opacity(hasPhotoBackground ? 0.55 : 0.3))
                         .overlay(
                             RoundedRectangle(cornerRadius: 32)
                                 .strokeBorder(.white.opacity(0.08), lineWidth: 1)
@@ -243,6 +224,35 @@ struct ShareableCalendarCard: View {
         if day.isCompleted { return bgBlack }
         return .white.opacity(0.4)
     }
+
+    // MARK: - Background
+
+    private var hasPhotoBackground: Bool {
+        if case .photo = background { return true }
+        return false
+    }
+
+    @ViewBuilder
+    private var backgroundLayer: some View {
+        switch background {
+        case .photo(let image):
+            ZStack {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: cardWidth, height: cardHeight)
+                    .clipped()
+                LinearGradient(
+                    colors: [.black.opacity(0.3), .black.opacity(0.4), .black.opacity(0.85)],
+                    startPoint: .top, endPoint: .bottom
+                )
+            }
+        case .solid:
+            bgBlack
+        case .transparent:
+            Color.clear
+        }
+    }
 }
 
 // MARK: - Share Calendar Day Model
@@ -273,7 +283,7 @@ private struct ShareCalDay {
         displayedMonth: Date(),
         streak: 4,
         completionCount: 11,
-        backgroundImage: nil
+        background: .solid
     )
     .scaleEffect(0.25)
     .frame(width: 270, height: 480)
