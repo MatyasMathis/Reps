@@ -56,6 +56,11 @@ struct StatsView: View {
     @State private var cachedCurrentStreak: Int = 0
     @State private var cachedBestStreak: Int = 0
 
+    // New cached stats
+    @State private var cachedConsistencyScore: Int = 0
+    @State private var cachedThisMonthCount: Int = 0
+    @State private var cachedLastMonthCount: Int = 0
+
     // MARK: - Computed Properties
 
     /// All unique categories from active tasks
@@ -173,6 +178,14 @@ struct StatsView: View {
                 // Quick numbers
                 quickNumbers
 
+                // Consistency score — the primary conversion hook
+                if cachedTotalReps > 0 {
+                    ConsistencyScoreCard(
+                        score: cachedConsistencyScore,
+                        accentColor: categoryColor
+                    )
+                }
+
                 // Weekly rhythm
                 if !cachedCompletionDates.isEmpty {
                     WeeklyRhythmChart(
@@ -181,9 +194,33 @@ struct StatsView: View {
                     )
                 }
 
+                // Peak hours — uses exact timestamps
+                if !cachedCompletionDates.isEmpty {
+                    PeakHoursChart(
+                        completions: cachedCompletionDates,
+                        accentColor: categoryColor
+                    )
+                }
+
                 // Monthly trend
                 if !cachedCompletionDates.isEmpty {
                     MonthlyTrendCard(
+                        completions: cachedCompletionDates,
+                        accentColor: categoryColor
+                    )
+                }
+
+                // 8-week rolling trend
+                if !cachedCompletionDates.isEmpty {
+                    WeeklyTrendChart(
+                        completions: cachedCompletionDates,
+                        accentColor: categoryColor
+                    )
+                }
+
+                // Personal records
+                if cachedTotalReps > 0 {
+                    PersonalRecordsCard(
                         completions: cachedCompletionDates,
                         accentColor: categoryColor
                     )
@@ -364,6 +401,13 @@ struct StatsView: View {
         cachedCompletionDateSet = dateSet
         cachedTotalReps = completions.count
 
+        // This month / last month counts (used for consistency score)
+        if let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: today)),
+           let lastMonthStart = calendar.date(byAdding: .month, value: -1, to: monthStart) {
+            cachedThisMonthCount = completions.filter { $0.completedAt >= monthStart }.count
+            cachedLastMonthCount = completions.filter { $0.completedAt >= lastMonthStart && $0.completedAt < monthStart }.count
+        }
+
         // Completion rate for recurring tasks
         let recurringTasks = tasks.filter { $0.recurrenceType != .none }
         if recurringTasks.isEmpty {
@@ -405,6 +449,14 @@ struct StatsView: View {
             }
             cachedCurrentStreak = streak
         }
+
+        // Consistency score (computed after streak and rate are known)
+        cachedConsistencyScore = ConsistencyScoreCard.compute(
+            completionRate: cachedCompletionRate,
+            currentStreak: cachedCurrentStreak,
+            thisMonthCount: cachedThisMonthCount,
+            lastMonthCount: cachedLastMonthCount
+        )
 
         // Best streak
         let sortedDates = dateSet.sorted()
