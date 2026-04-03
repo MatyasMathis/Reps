@@ -24,12 +24,17 @@ enum SharedModelContainer {
     ])
 
     private static var storeURL: URL {
-        guard let containerURL = FileManager.default.containerURL(
+        if let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: appGroupIdentifier
-        ) else {
-            fatalError("Failed to get App Group container URL for \(appGroupIdentifier)")
+        ) {
+            return containerURL.appendingPathComponent("reps.sqlite")
         }
-        return containerURL.appendingPathComponent("reps.sqlite")
+        // Fallback: App Group not accessible (misconfigured signing/capabilities).
+        // Use Documents directory so the app can still launch; widget data sharing
+        // will not work until the App Group capability is restored in Xcode.
+        assertionFailure("App Group '\(appGroupIdentifier)' unavailable — check Signing & Capabilities for both targets.")
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("reps.sqlite")
     }
 
     /// Creates a ModelContainer for the main app.
