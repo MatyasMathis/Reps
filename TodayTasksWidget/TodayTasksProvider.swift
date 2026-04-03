@@ -16,6 +16,7 @@ struct TaskEntry: TimelineEntry {
     let tasks: [WidgetTask]
     let completedCount: Int
     let totalCount: Int
+    let currentStreak: Int
 }
 
 struct WidgetTask: Identifiable {
@@ -41,7 +42,8 @@ struct TodayTasksProvider: TimelineProvider {
                 WidgetTask(id: UUID(), title: "Buy groceries", category: "Shopping", isRecurring: false, isCompletedToday: true, customCategoryColorHex: nil)
             ],
             completedCount: 1,
-            totalCount: 3
+            totalCount: 3,
+            currentStreak: 7
         )
     }
 
@@ -170,11 +172,36 @@ struct TodayTasksProvider: TimelineProvider {
             }
         }
 
+        let streak = computeCurrentStreak(context: context)
+
         return TaskEntry(
             date: Date(),
             tasks: widgetTasks,
             completedCount: completedTodayCount,
-            totalCount: allTodayTaskCount
+            totalCount: allTodayTaskCount,
+            currentStreak: streak
         )
+    }
+
+    @MainActor
+    private func computeCurrentStreak(context: ModelContext) -> Int {
+        let calendar = Calendar.current
+        let completionDescriptor = FetchDescriptor<TaskCompletion>()
+        let allCompletions = (try? context.fetch(completionDescriptor)) ?? []
+
+        var streak = 0
+        var checkDate = calendar.startOfDay(for: Date())
+
+        while true {
+            let hasCompletion = allCompletions.contains {
+                calendar.startOfDay(for: $0.completedAt) == checkDate
+            }
+            guard hasCompletion else { break }
+            streak += 1
+            guard let prev = calendar.date(byAdding: .day, value: -1, to: checkDate) else { break }
+            checkDate = prev
+        }
+
+        return streak
     }
 }

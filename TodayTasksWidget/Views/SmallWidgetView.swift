@@ -2,7 +2,8 @@
 //  SmallWidgetView.swift
 //  TodayTasksWidget
 //
-//  Purpose: Small widget view showing circular progress indicator.
+//  Purpose: Small 2x2 widget — minimal percentage view with progress bar.
+//  Design: MINIMAL — flame icon, REPS label, big bold italic %, green bar
 //
 
 import SwiftUI
@@ -17,43 +18,51 @@ struct SmallWidgetView: View {
     }
 
     var body: some View {
-        VStack(spacing: 4) {
-            HStack {
-                Text("DAILY PROGRESS")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Color.widgetMediumGray)
+        VStack(alignment: .leading, spacing: 0) {
+            // Top row: flame icon + REPS label
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(Color.widgetDarkGray1)
+                        .frame(width: 30, height: 30)
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Color.widgetPersonalOrange)
+                }
+
+                Text("REPS")
+                    .font(.system(size: 12, weight: .black))
+                    .italic()
+                    .foregroundStyle(Color.widgetPureWhite)
+                    .tracking(1.5)
+
                 Spacer()
             }
 
             Spacer()
 
-            // Circular progress
-            ZStack {
-                Circle()
-                    .stroke(Color.widgetDarkGray2, lineWidth: 6)
+            // Big percentage
+            Text("\(Int(percentage * 100))%")
+                .font(.system(size: 52, weight: .black))
+                .italic()
+                .foregroundStyle(Color.widgetPureWhite)
+                .monospacedDigit()
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
 
-                Circle()
-                    .trim(from: 0, to: percentage)
-                    .stroke(
-                        Color.widgetRecoveryGreen,
-                        style: StrokeStyle(lineWidth: 6, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(-90))
+            Spacer(minLength: 10)
 
-                VStack(spacing: 0) {
-                    Text("\(entry.completedCount)/\(entry.totalCount)")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(Color.widgetPureWhite)
+            // Progress bar
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.widgetDarkGray2)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.widgetRecoveryGreen)
+                        .frame(width: geo.size.width * percentage)
                 }
             }
-            .frame(width: 70, height: 70)
-
-            Spacer()
-
-            // Percentage
-            Text("\(Int(percentage * 100))% complete")
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(Color.widgetRecoveryGreen)
+            .frame(height: 5)
         }
         .widgetURL(URL(string: "reps://tasks"))
     }
