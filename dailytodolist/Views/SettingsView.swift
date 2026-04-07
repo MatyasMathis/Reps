@@ -92,7 +92,6 @@ struct SettingsView: View {
             .toolbarBackground(Color.brandBlack, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
         }
-        .presentationBackground(Color.brandBlack)
     }
 
     // MARK: - App Info Section
