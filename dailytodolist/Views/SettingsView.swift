@@ -214,6 +214,22 @@ struct SettingsView: View {
 
                     Spacer()
 
+                    if notificationsEnabled {
+                        DatePicker("", selection: $notificationTime, displayedComponents: .hourAndMinute)
+                            .labelsHidden()
+                            .colorScheme(.dark)
+                            .onChange(of: notificationTime) { _, newTime in
+                                let components = Calendar.current.dateComponents([.hour, .minute], from: newTime)
+                                notificationHour = components.hour ?? 8
+                                notificationMinute = components.minute ?? 0
+                                NotificationService.shared.scheduleReminder(
+                                    hour: notificationHour,
+                                    minute: notificationMinute
+                                )
+                            }
+                            .padding(.trailing, Spacing.sm)
+                    }
+
                     Toggle("", isOn: Binding(
                         get: { notificationsEnabled },
                         set: { enabled in
@@ -241,42 +257,7 @@ struct SettingsView: View {
                     .tint(Color.recoveryGreen)
                 }
                 .padding(Spacing.lg)
-
-                // Notification Time Picker (shown when notifications are enabled)
-                if notificationsEnabled {
-                    settingsDivider
-
-                    HStack(spacing: Spacing.md) {
-                        settingsIcon("clock.fill", bg: Color(hex: "0C2E1A"), fg: Color.recoveryGreen)
-
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("Reminder Time")
-                                .font(.system(size: Typography.bodySize, weight: .bold))
-                                .italic()
-                                .foregroundStyle(Color.pureWhite)
-                            Text("DAILY NUDGE")
-                                .font(.system(size: 11, weight: .bold))
-                                .tracking(0.8)
-                                .foregroundStyle(Color.pureWhite.opacity(0.4))
-                        }
-
-                        Spacer()
-
-                        DatePicker("", selection: $notificationTime, displayedComponents: .hourAndMinute)
-                            .labelsHidden()
-                            .colorScheme(.dark)
-                            .onChange(of: notificationTime) { _, newTime in
-                                let components = Calendar.current.dateComponents([.hour, .minute], from: newTime)
-                                notificationHour = components.hour ?? 8
-                                notificationMinute = components.minute ?? 0
-                                NotificationService.shared.scheduleReminder(
-                                    hour: notificationHour,
-                                    minute: notificationMinute
-                                )
-                            }
-                    }
-                    .padding(Spacing.lg)
-                }
+                .animation(.easeInOut(duration: 0.2), value: notificationsEnabled)
 
                 settingsDivider
 
