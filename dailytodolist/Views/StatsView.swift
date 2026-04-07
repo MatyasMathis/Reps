@@ -178,6 +178,17 @@ struct StatsView: View {
                 // Quick numbers
                 quickNumbers
 
+                // Consistency score — single-number health score (Whoop-style)
+                if !cachedCompletionDates.isEmpty {
+                    ConsistencyScoreCard(
+                        completionRate: cachedCompletionRate,
+                        currentStreak: cachedCurrentStreak,
+                        bestStreak: cachedBestStreak,
+                        completions: cachedCompletionDates,
+                        accentColor: categoryColor
+                    )
+                }
+
                 // Weekly rhythm
                 if !cachedCompletionDates.isEmpty {
                     WeeklyRhythmChart(
@@ -186,9 +197,33 @@ struct StatsView: View {
                     )
                 }
 
+                // Peak hours — time-of-day breakdown
+                if !cachedCompletionDates.isEmpty {
+                    PeakHoursChart(
+                        completions: cachedCompletionDates,
+                        accentColor: categoryColor
+                    )
+                }
+
                 // Monthly trend
                 if !cachedCompletionDates.isEmpty {
                     MonthlyTrendCard(
+                        completions: cachedCompletionDates,
+                        accentColor: categoryColor
+                    )
+                }
+
+                // 8-week trend — rolling trajectory with vs-avg badge
+                if !cachedCompletionDates.isEmpty {
+                    WeeklyTrendChart(
+                        completions: cachedCompletionDates,
+                        accentColor: categoryColor
+                    )
+                }
+
+                // Personal records — best day, best week, active days, avg/week
+                if !cachedCompletionDates.isEmpty {
+                    PersonalRecordsCard(
                         completions: cachedCompletionDates,
                         accentColor: categoryColor
                     )
