@@ -3,7 +3,8 @@
 //  Reps
 //
 //  Purpose: Branded shareable card showing a category's monthly completion calendar
-//  Design: Strava-inspired — photo background, compact calendar, minimal text
+//  Design: Matches Year-in-Pixels card — full-bleed typographic layout with big header,
+//          badge, full calendar grid, and bold stats at bottom.
 //
 
 import SwiftUI
@@ -35,8 +36,6 @@ struct ShareableCalendarCard: View {
 
     // Raw theme colors for ImageRenderer
     private let bgBlack = Color(red: 0.04, green: 0.04, blue: 0.04)
-    private let surfaceDark = Color(red: 0.10, green: 0.10, blue: 0.10)
-    private let surfaceMid = Color(red: 0.165, green: 0.165, blue: 0.165)
 
     private let calendar = Calendar.current
     private let daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"]
@@ -45,8 +44,14 @@ struct ShareableCalendarCard: View {
 
     private var monthTitle: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
+        formatter.dateFormat = "MMMM"
         return formatter.string(from: displayedMonth).uppercased()
+    }
+
+    private var yearTitle: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy"
+        return formatter.string(from: displayedMonth)
     }
 
     private var daysInMonth: [ShareCalDay] {
@@ -83,88 +88,113 @@ struct ShareableCalendarCard: View {
     // MARK: - Body
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topTrailing) {
             // Background
             backgroundLayer
 
-            // Content — pushed to bottom half, Strava-style
-            VStack(spacing: 0) {
-                Spacer()
+            // Main content — full-bleed layout matching Year card
+            VStack(alignment: .leading, spacing: 0) {
 
-                // Calendar card — frosted glass container
-                VStack(spacing: 36) {
-                    // Header: category + month
-                    VStack(spacing: 12) {
-                        HStack(spacing: 12) {
-                            Image(systemName: categoryIcon)
-                                .font(.system(size: 24, weight: .semibold))
-                            Text(categoryName.uppercased())
-                                .font(.system(size: 24, weight: .bold))
-                                .tracking(3)
-                        }
-                        .foregroundStyle(categoryColor)
-
-                        Text(monthTitle)
-                            .font(.system(size: 36, weight: .bold))
-                            .foregroundStyle(.white)
-                            .tracking(2)
-                    }
-
-                    // Compact calendar grid
-                    calendarGrid
-
-                    // Bottom stats row
+                // Header: REPS + MONTH (like "REPS 2024")
+                VStack(alignment: .leading, spacing: 20) {
                     HStack(spacing: 0) {
-                        // Completions
-                        VStack(spacing: 4) {
-                            Text("\(completionCount)")
-                                .font(.system(size: 40, weight: .bold))
-                                .foregroundStyle(categoryColor)
-                            Text("DAYS")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(.white.opacity(0.5))
-                                .tracking(1.5)
-                        }
-                        .frame(maxWidth: .infinity)
+                        Text("REPS ")
+                            .font(.system(size: 100, weight: .black))
+                            .italic()
+                            .foregroundStyle(.white)
+                        Text(monthTitle)
+                            .font(.system(size: 100, weight: .black))
+                            .italic()
+                            .foregroundStyle(categoryColor)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                    }
+                    .monospacedDigit()
 
-                        // Divider
-                        Rectangle()
-                            .fill(.white.opacity(0.1))
-                            .frame(width: 1, height: 44)
-
-                        // Streak
-                        VStack(spacing: 4) {
-                            Text("\(streak)")
-                                .font(.system(size: 40, weight: .bold))
-                                .foregroundStyle(streak > 0 ? categoryColor : .white.opacity(0.3))
-                            Text("STREAK")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(.white.opacity(0.5))
-                                .tracking(1.5)
-                        }
-                        .frame(maxWidth: .infinity)
+                    // Category + Year subtitle
+                    HStack(spacing: 16) {
+                        Image(systemName: categoryIcon)
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundStyle(categoryColor.opacity(0.7))
+                        Text("\(categoryName.uppercased())  ·  \(yearTitle)")
+                            .font(.system(size: 26, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.35))
+                            .tracking(3)
                     }
                 }
-                .padding(.horizontal, 48)
-                .padding(.vertical, 48)
-                .background(
-                    RoundedRectangle(cornerRadius: 32)
-                        .fill(.black.opacity(hasPhotoBackground ? 0.55 : 0.3))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 32)
-                                .strokeBorder(.white.opacity(0.08), lineWidth: 1)
-                        )
-                )
-                .padding(.horizontal, 48)
+                .padding(.top, 104)
+                .padding(.horizontal, 64)
+
+                Spacer()
+
+                // Calendar grid
+                calendarGrid
+                    .padding(.horizontal, 64)
+
+                Spacer()
+
+                // Divider
+                Rectangle()
+                    .fill(.white.opacity(0.12))
+                    .frame(height: 1)
+                    .padding(.horizontal, 64)
+                    .padding(.bottom, 56)
+
+                // Stats — big italic numbers like year card
+                HStack(alignment: .top, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("DAYS COMPLETED")
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.35))
+                            .tracking(2)
+                        Text("\(completionCount)")
+                            .font(.system(size: 100, weight: .black))
+                            .italic()
+                            .foregroundStyle(categoryColor)
+                            .monospacedDigit()
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("STREAK")
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.35))
+                            .tracking(2)
+                        Text("\(streak)")
+                            .font(.system(size: 100, weight: .black))
+                            .italic()
+                            .foregroundStyle(streak > 0 ? .white : .white.opacity(0.2))
+                            .monospacedDigit()
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.horizontal, 64)
+                .padding(.bottom, 80)
 
                 // Branding
                 Text("REPS")
-                    .font(.system(size: 32, weight: .black, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.3))
-                    .tracking(4)
-                    .padding(.top, 40)
-                    .padding(.bottom, 80)
+                    .font(.system(size: 28, weight: .black))
+                    .foregroundStyle(.white.opacity(0.15))
+                    .tracking(6)
+                    .padding(.horizontal, 64)
+                    .padding(.bottom, 96)
             }
+
+            // Verified badge (top-right, matching year card)
+            ZStack {
+                Circle()
+                    .fill(categoryColor)
+                    .frame(width: 80, height: 80)
+                Image(systemName: "checkmark")
+                    .font(.system(size: 32, weight: .black))
+                    .foregroundStyle(.black)
+            }
+            .padding(.top, 112)
+            .padding(.trailing, 64)
         }
         .frame(width: cardWidth, height: cardHeight)
     }
@@ -172,20 +202,19 @@ struct ShareableCalendarCard: View {
     // MARK: - Calendar Grid
 
     private var calendarGrid: some View {
-        VStack(spacing: 14) {
-            // Days of week header
+        VStack(spacing: 16) {
+            // Days-of-week header
             HStack(spacing: 0) {
                 ForEach(Array(daysOfWeek.enumerated()), id: \.offset) { _, day in
                     Text(day)
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.system(size: 22, weight: .bold))
                         .foregroundStyle(.white.opacity(0.35))
                         .frame(maxWidth: .infinity)
                 }
             }
 
-            // Day cells — compact dots with day numbers
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 7)
-
+            // Day cells
+            let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 7)
             LazyVGrid(columns: columns, spacing: 10) {
                 ForEach(Array(daysInMonth.enumerated()), id: \.offset) { _, day in
                     shareCalDayCell(day: day)
@@ -198,31 +227,35 @@ struct ShareableCalendarCard: View {
     private func shareCalDayCell(day: ShareCalDay) -> some View {
         if day.dayNumber > 0 {
             ZStack {
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 18)
                     .fill(dayCellBackground(day))
-                    .frame(width: 88, height: 88)
+
+                if day.isToday && !day.isCompleted {
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(categoryColor.opacity(0.5), lineWidth: 2)
+                }
 
                 Text("\(day.dayNumber)")
-                    .font(.system(size: 26, weight: .semibold))
+                    .font(.system(size: 28, weight: .semibold))
                     .foregroundStyle(dayCellTextColor(day))
             }
-            .frame(height: 88)
+            .aspectRatio(1, contentMode: .fit)
         } else {
             Color.clear
-                .frame(height: 88)
+                .aspectRatio(1, contentMode: .fit)
         }
     }
 
     private func dayCellBackground(_ day: ShareCalDay) -> Color {
         if day.isCompleted { return categoryColor }
         if day.isFuture { return .white.opacity(0.03) }
-        return .white.opacity(0.06)
+        return .white.opacity(0.07)
     }
 
     private func dayCellTextColor(_ day: ShareCalDay) -> Color {
         if day.isFuture { return .white.opacity(0.15) }
         if day.isCompleted { return bgBlack }
-        return .white.opacity(0.4)
+        return .white.opacity(0.45)
     }
 
     // MARK: - Background
@@ -243,7 +276,7 @@ struct ShareableCalendarCard: View {
                     .frame(width: cardWidth, height: cardHeight)
                     .clipped()
                 LinearGradient(
-                    colors: [.black.opacity(0.3), .black.opacity(0.4), .black.opacity(0.85)],
+                    colors: [.black.opacity(0.25), .black.opacity(0.45), .black.opacity(0.88)],
                     startPoint: .top, endPoint: .bottom
                 )
             }

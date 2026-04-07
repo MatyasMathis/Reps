@@ -248,10 +248,8 @@ struct MainTabView: View {
             .fullScreenCover(isPresented: $showHistoryPaywall) {
                 PaywallView()
             }
-            .sheet(isPresented: $showSettings) {
+            .fullScreenCover(isPresented: $showSettings) {
                 SettingsView()
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
             }
             .fullScreenCover(isPresented: $showYearInPixels) {
                 YearInPixelsView()

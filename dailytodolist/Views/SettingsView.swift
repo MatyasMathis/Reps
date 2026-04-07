@@ -33,6 +33,7 @@ struct SettingsView: View {
     @State private var showTermsOfService = false
     @State private var showPaywall = false
     @State private var showNotificationDeniedAlert = false
+    @State private var notificationTime: Date = Date()
 
     // MARK: - Computed
 
@@ -91,7 +92,6 @@ struct SettingsView: View {
             .toolbarBackground(Color.brandBlack, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
         }
-        .presentationBackground(Color.brandBlack)
     }
 
     // MARK: - App Info Section
@@ -214,6 +214,22 @@ struct SettingsView: View {
 
                     Spacer()
 
+                    if notificationsEnabled {
+                        DatePicker("", selection: $notificationTime, displayedComponents: .hourAndMinute)
+                            .labelsHidden()
+                            .colorScheme(.dark)
+                            .onChange(of: notificationTime) { _, newTime in
+                                let components = Calendar.current.dateComponents([.hour, .minute], from: newTime)
+                                notificationHour = components.hour ?? 8
+                                notificationMinute = components.minute ?? 0
+                                NotificationService.shared.scheduleReminder(
+                                    hour: notificationHour,
+                                    minute: notificationMinute
+                                )
+                            }
+                            .padding(.trailing, Spacing.sm)
+                    }
+
                     Toggle("", isOn: Binding(
                         get: { notificationsEnabled },
                         set: { enabled in
@@ -241,6 +257,7 @@ struct SettingsView: View {
                     .tint(Color.recoveryGreen)
                 }
                 .padding(Spacing.lg)
+                .animation(.easeInOut(duration: 0.2), value: notificationsEnabled)
 
                 settingsDivider
 
@@ -296,6 +313,11 @@ struct SettingsView: View {
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
         }
         .task {
+            var components = DateComponents()
+            components.hour = notificationHour
+            components.minute = notificationMinute
+            notificationTime = Calendar.current.date(from: components) ?? Date()
+
             if notificationsEnabled {
                 let status = await NotificationService.shared.checkAuthorizationStatus()
                 if status == .denied { notificationsEnabled = false }
