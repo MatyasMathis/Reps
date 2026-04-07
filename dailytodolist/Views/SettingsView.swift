@@ -33,6 +33,7 @@ struct SettingsView: View {
     @State private var showTermsOfService = false
     @State private var showPaywall = false
     @State private var showNotificationDeniedAlert = false
+    @State private var notificationTime: Date = Date()
 
     // MARK: - Computed
 
@@ -242,6 +243,42 @@ struct SettingsView: View {
                 }
                 .padding(Spacing.lg)
 
+                // Notification Time Picker (shown when notifications are enabled)
+                if notificationsEnabled {
+                    settingsDivider
+
+                    HStack(spacing: Spacing.md) {
+                        settingsIcon("clock.fill", bg: Color(hex: "0C2E1A"), fg: Color.recoveryGreen)
+
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Reminder Time")
+                                .font(.system(size: Typography.bodySize, weight: .bold))
+                                .italic()
+                                .foregroundStyle(Color.pureWhite)
+                            Text("DAILY NUDGE")
+                                .font(.system(size: 11, weight: .bold))
+                                .tracking(0.8)
+                                .foregroundStyle(Color.pureWhite.opacity(0.4))
+                        }
+
+                        Spacer()
+
+                        DatePicker("", selection: $notificationTime, displayedComponents: .hourAndMinute)
+                            .labelsHidden()
+                            .colorScheme(.dark)
+                            .onChange(of: notificationTime) { _, newTime in
+                                let components = Calendar.current.dateComponents([.hour, .minute], from: newTime)
+                                notificationHour = components.hour ?? 8
+                                notificationMinute = components.minute ?? 0
+                                NotificationService.shared.scheduleReminder(
+                                    hour: notificationHour,
+                                    minute: notificationMinute
+                                )
+                            }
+                    }
+                    .padding(Spacing.lg)
+                }
+
                 settingsDivider
 
                 // Completion Sound
@@ -296,6 +333,11 @@ struct SettingsView: View {
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.standard))
         }
         .task {
+            var components = DateComponents()
+            components.hour = notificationHour
+            components.minute = notificationMinute
+            notificationTime = Calendar.current.date(from: components) ?? Date()
+
             if notificationsEnabled {
                 let status = await NotificationService.shared.checkAuthorizationStatus()
                 if status == .denied { notificationsEnabled = false }
